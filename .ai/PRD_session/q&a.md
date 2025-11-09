@@ -1,6 +1,6 @@
 Here is the list of questions and recommendations to help build the PRD:
 
-1nd phase:
+1st phase:
 
 Question: Who is the specific primary target user for this tool (e.g., medical students, language learners, high-school students)? Recommendation: We should define a clear primary user persona. This will guide the AI's prompt engineering to ensure the quality and style of the generated flashcards (e.g., simple definitions vs. complex "cloze deletion" cards) match their specific study needs.
 
