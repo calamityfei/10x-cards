@@ -20,7 +20,7 @@ export async function generateFlashcards(sourceText: string): Promise<Generation
   const candidates = generateMockCandidates(sourceText);
 
   const generationDuration = Date.now() - startTime;
-  const sourceTextHash = createHash("md5").update(sourceText).digest("hex");
+  const sourceTextHash = createHash("sha256").update(sourceText).digest("hex");
 
   return {
     candidates,

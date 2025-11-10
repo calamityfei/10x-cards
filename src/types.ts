@@ -138,7 +138,7 @@ export interface GenerationMetadataDto {
   generation_duration_ms: number | null;
   /** The character length of the original `source_text`. */
   source_text_length: number;
-  /** MD5 hash of the source text. */
+  /** SHA-256 hash of the source text. */
   source_text_hash: string;
 }
 
