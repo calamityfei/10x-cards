@@ -1,6 +1,6 @@
 ---
 Rule Type: Auto Attached
-globs: '**/*.tsx, **/*.jsx'
+globs: "**/*.tsx, **/*.jsx"
 ---
 
 ### Guidelines for React
@@ -17,6 +17,7 @@ globs: '**/*.tsx, **/*.jsx'
 - Use useTransition for non-urgent state updates to keep the UI responsive
 
 Key Principles
+
 - Use functional, declarative programming. Avoid classes.
 - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
 - Favor named exports for components.

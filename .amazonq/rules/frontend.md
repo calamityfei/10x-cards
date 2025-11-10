@@ -1,6 +1,6 @@
 ---
 Rule Type: Auto Attached
-globs: '**/*.tsx, **/*.jsx, **/*.astro'
+globs: "**/*.tsx, **/*.jsx, **/*.astro"
 ---
 
 ## Frontend
