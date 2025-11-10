@@ -166,7 +166,8 @@
     "metadata": {
       "model_used": "anthropic/claude-3-haiku",
       "generation_duration_ms": 1450,
-      "source_text_length": 1200
+      "source_text_length": 1200,
+      "source_text_hash": "a1b2c3d4e5f6..."
     }
   }
   ```
