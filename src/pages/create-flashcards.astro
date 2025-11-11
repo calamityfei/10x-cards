@@ -1,0 +1,19 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import CreateFlashcardsContainer from "@/components/CreateFlashcardsContainer";
+
+export const prerender = false;
+
+const { supabase } = Astro.locals;
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+if (!user) {
+  return Astro.redirect("/login");
+}
+---
+
+<Layout title="Create Flashcards">
+  <CreateFlashcardsContainer client:load />
+</Layout>
