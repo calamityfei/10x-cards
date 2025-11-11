@@ -61,7 +61,7 @@ This section details the primary views (pages) of the application.
 - **Key View Components:**
   - `Search Input`: A debounced text field for filtering cards (US-013).
   - `Flashcard Grid`: A responsive grid (Decision #8) of `Card` components.
-  - `Flashcard Card`: A `FlashCard` component that displays "front" text. Flips on click to show "back" text (US-012). Includes "Edit" and "Delete" icon buttons (US-015, US-016).
+  - `Flashcard Item`: A `FlashCard` component that displays "front" text. Flips on click to show "back" text (US-012). Includes "Edit" and "Delete" icon buttons (US-015, US-016).
   - `Pagination`: "Next" and "Previous" buttons (US-014).
   - `ReusableEmptyState`: (Decision #10) Shown if the user has 0 cards (US-020).
   - `FlashcardAddEditModal`: (See Key Components) Opened in "Edit Mode" by the "Edit" button.
