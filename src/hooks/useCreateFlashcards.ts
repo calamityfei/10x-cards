@@ -1,5 +1,7 @@
 import { useState } from "react";
-import type { GenerateCandidatesResponseDto, GenerationMetadataDto, CreateGenerationResponseDto } from "@/types";
+import type { GenerationMetadataDto } from "@/types";
+import { generateCandidates, saveGenerationLog, saveFlashcards } from "@/lib/api/flashcards";
+import { generateClientId, computeGenerationMetrics } from "@/lib/utils/flashcard-helpers";
 
 export interface CandidateCardViewModel {
   id: string;
@@ -57,18 +59,7 @@ export function useCreateFlashcards() {
     setState((prev) => ({ ...prev, isGenerating: true, error: null }));
 
     try {
-      const response = await fetch("/api/generations/generate-candidates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source_text: state.sourceText }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.details || "Generation failed");
-      }
-
-      const data: GenerateCandidatesResponseDto = await response.json();
+      const data = await generateCandidates(state.sourceText);
 
       if (data.candidates.length === 0) {
         setState((prev) => ({
@@ -81,7 +72,7 @@ export function useCreateFlashcards() {
       }
 
       const candidateViewModels: CandidateCardViewModel[] = data.candidates.map((candidate) => ({
-        id: crypto.randomUUID(),
+        id: generateClientId(),
         front: candidate.front,
         back: candidate.back,
         status: "unreviewed" as const,
@@ -158,7 +149,7 @@ export function useCreateFlashcards() {
       }));
     } else {
       const newCard: CandidateCardViewModel = {
-        id: crypto.randomUUID(),
+        id: generateClientId(),
         front: data.front,
         back: data.back,
         status: "accepted",
@@ -191,17 +182,7 @@ export function useCreateFlashcards() {
 
       if (hasAICandidates && state.generationMetadata) {
         const metrics = computeGenerationMetrics(state.candidates, state.generationMetadata);
-        const genResponse = await fetch("/api/generations", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ generation_log: metrics }),
-        });
-
-        if (!genResponse.ok) {
-          throw new Error("Failed to save generation log");
-        }
-
-        const genData: CreateGenerationResponseDto = await genResponse.json();
+        const genData = await saveGenerationLog({ generation_log: metrics });
         generationId = genData.id;
       }
 
@@ -212,17 +193,7 @@ export function useCreateFlashcards() {
         generation_id: card.source.startsWith("ai") ? generationId : null,
       }));
 
-      const flashcardsResponse = await fetch("/api/flashcards", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ flashcards: flashcardsPayload }),
-      });
-
-      if (!flashcardsResponse.ok) {
-        throw new Error("Failed to save flashcards");
-      }
-
-      await flashcardsResponse.json();
+      await saveFlashcards({ flashcards: flashcardsPayload });
 
       resetState();
     } catch (err) {
@@ -270,23 +241,5 @@ export function useCreateFlashcards() {
       savableCards,
       canSave,
     },
-  };
-}
-
-function computeGenerationMetrics(candidates: CandidateCardViewModel[], metadata: GenerationMetadataDto) {
-  const aiCandidates = candidates.filter((c) => c.source.startsWith("ai"));
-  const acceptedUnedited = aiCandidates.filter((c) => c.status === "accepted" && c.source === "ai_full").length;
-  const acceptedEdited = aiCandidates.filter((c) => c.status === "edited" && c.source === "ai_edited").length;
-  const deleted = aiCandidates.filter((c) => c.status === "deleted").length;
-
-  return {
-    model: metadata.model_used,
-    generation_duration: metadata.generation_duration_ms,
-    source_text_hash: metadata.source_text_hash,
-    source_text_length: metadata.source_text_length,
-    generated_count: aiCandidates.length,
-    accepted_unedited_count: acceptedUnedited,
-    accepted_edited_count: acceptedEdited,
-    deleted_count: deleted,
   };
 }
