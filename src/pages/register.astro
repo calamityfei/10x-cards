@@ -1,0 +1,19 @@
+---
+import PublicLayout from "../layouts/PublicLayout.astro";
+import { RegisterForm } from "../components/auth/RegisterForm";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card";
+
+export const prerender = false;
+---
+
+<PublicLayout title="Register - 10xCards">
+  <Card>
+    <CardHeader>
+      <CardTitle>Create an account</CardTitle>
+      <CardDescription>Get started with 10xCards</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <RegisterForm client:load />
+    </CardContent>
+  </Card>
+</PublicLayout>

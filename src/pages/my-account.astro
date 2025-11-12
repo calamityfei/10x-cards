@@ -1,0 +1,16 @@
+---
+import ProtectedLayout from "../layouts/ProtectedLayout.astro";
+import { AccountSettings } from "../components/account/AccountSettings";
+
+export const prerender = false;
+
+// This will be populated by middleware once auth is implemented
+const userEmail = "user@example.com"; // Placeholder for now
+---
+
+<ProtectedLayout title="My Account - 10xCards">
+  <div class="container mx-auto max-w-4xl p-6">
+    <h1 class="text-3xl font-bold mb-6">My Account</h1>
+    <AccountSettings client:load email={userEmail} />
+  </div>
+</ProtectedLayout>
