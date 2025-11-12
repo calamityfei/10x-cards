@@ -1,19 +1,14 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
 import CreateFlashcardsContainer from "@/components/CreateFlashcardsContainer";
 
 export const prerender = false;
 
-const { supabase } = Astro.locals;
-const {
-  data: { user },
-} = await supabase.auth.getUser();
-
-if (!user) {
+if (!Astro.locals.user) {
   return Astro.redirect("/login");
 }
 ---
 
-<Layout title="Create Flashcards">
+<ProtectedLayout title="Create Flashcards">
   <CreateFlashcardsContainer client:load />
-</Layout>
+</ProtectedLayout>

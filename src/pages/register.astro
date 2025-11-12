@@ -4,6 +4,10 @@ import { RegisterForm } from "../components/auth/RegisterForm";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card";
 
 export const prerender = false;
+
+if (Astro.locals.user) {
+  return Astro.redirect("/my-flashcards");
+}
 ---
 
 <PublicLayout title="Register - 10xCards">

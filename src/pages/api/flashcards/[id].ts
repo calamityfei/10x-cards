@@ -2,15 +2,21 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { flashcardIdSchema, updateFlashcardSchema } from "../../../lib/validation/flashcard.schemas";
 import { getFlashcardById, updateFlashcard, deleteFlashcard } from "../../../lib/services/flashcard.service";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const id = flashcardIdSchema.parse(params.id);
 
-    const flashcard = await getFlashcardById(locals.supabase, DEFAULT_USER_ID, id);
+    const flashcard = await getFlashcardById(locals.supabase, locals.user.id, id);
 
     if (!flashcard) {
       return new Response(JSON.stringify({ error: "Flashcard not found" }), {
@@ -41,11 +47,18 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
 export const PATCH: APIRoute = async ({ params, request, locals }) => {
   try {
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const id = flashcardIdSchema.parse(params.id);
     const body = await request.json();
     const validatedBody = updateFlashcardSchema.parse(body);
 
-    const flashcard = await updateFlashcard(locals.supabase, DEFAULT_USER_ID, id, validatedBody);
+    const flashcard = await updateFlashcard(locals.supabase, locals.user.id, id, validatedBody);
 
     if (!flashcard) {
       return new Response(JSON.stringify({ error: "Flashcard not found" }), {
@@ -76,9 +89,16 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
 
 export const DELETE: APIRoute = async ({ params, locals }) => {
   try {
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const id = flashcardIdSchema.parse(params.id);
 
-    const deleted = await deleteFlashcard(locals.supabase, DEFAULT_USER_ID, id);
+    const deleted = await deleteFlashcard(locals.supabase, locals.user.id, id);
 
     if (!deleted) {
       return new Response(JSON.stringify({ error: "Flashcard not found" }), {

@@ -2,18 +2,24 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { getFlashcardsQuerySchema, createFlashcardsSchema } from "../../../lib/validation/flashcard.schemas";
 import { getFlashcards, createFlashcards } from "../../../lib/services/flashcard.service";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const url = new URL(request.url);
     const queryParams = Object.fromEntries(url.searchParams);
 
     const validatedQuery = getFlashcardsQuerySchema.parse(queryParams);
 
-    const result = await getFlashcards(locals.supabase, DEFAULT_USER_ID, validatedQuery);
+    const result = await getFlashcards(locals.supabase, locals.user.id, validatedQuery);
 
     return new Response(JSON.stringify(result), {
       status: 200,
@@ -37,10 +43,17 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const body = await request.json();
     const validatedBody = createFlashcardsSchema.parse(body);
 
-    const flashcards = await createFlashcards(locals.supabase, DEFAULT_USER_ID, validatedBody.flashcards);
+    const flashcards = await createFlashcards(locals.supabase, locals.user.id, validatedBody.flashcards);
 
     return new Response(JSON.stringify({ flashcards }), {
       status: 201,

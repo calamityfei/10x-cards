@@ -2,7 +2,6 @@ import type { APIContext } from "astro";
 import { z } from "zod";
 import type { CreateGenerationCommand, CreateGenerationResponseDto } from "../../types";
 import { createGenerationLog } from "../../lib/services/generation.service";
-import { DEFAULT_USER_ID } from "../../db/supabase.client";
 
 export const prerender = false;
 
@@ -25,6 +24,13 @@ const createGenerationSchema = z.object({
 
 export const POST = async (context: APIContext) => {
   try {
+    if (!context.locals.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     // 1. Parse and validate request body
     const body = (await context.request.json()) as CreateGenerationCommand;
     const validation = createGenerationSchema.safeParse(body);
@@ -41,7 +47,7 @@ export const POST = async (context: APIContext) => {
     // 2. Call service to create generation log
     const generationLog = await createGenerationLog(
       context.locals.supabase,
-      DEFAULT_USER_ID,
+      context.locals.user.id,
       validation.data.generation_log
     );
 

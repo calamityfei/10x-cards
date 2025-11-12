@@ -14,6 +14,13 @@ const generateCandidatesSchema = z.object({
 
 export const POST = async (context: APIContext) => {
   try {
+    if (!context.locals.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     // 1. Parse and validate request body
     const body = (await context.request.json()) as GenerateCandidatesCommand;
 

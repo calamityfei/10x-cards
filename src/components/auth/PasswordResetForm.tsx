@@ -2,11 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface PasswordResetFormProps {
-  token: string;
-}
-
-export function PasswordResetForm({ token }: PasswordResetFormProps) {
+export function PasswordResetForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +35,7 @@ export function PasswordResetForm({ token }: PasswordResetFormProps) {
       const response = await fetch("/api/auth/password-reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ password }),
       });
 
       const data = await response.json();
