@@ -105,7 +105,9 @@ export interface Database {
       };
     };
     Views: Record<never, never>;
-    Functions: Record<never, never>;
+    Functions: {
+      delete_user: { Args: never; Returns: undefined };
+    };
     Enums: {
       card_source: "ai_full" | "ai_edited" | "manual";
     };

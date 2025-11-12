@@ -157,7 +157,7 @@ All protected pages require authentication. Middleware checks for valid session 
   - Uses protected layout with PersistentHeader
 
 - **React Component:** `AccountSettings` (`/src/components/account/AccountSettings.tsx`)
-  - Two Card sections:
+  - Three card sections:
     1. **Account Information Card:**
        - Display email (read-only)
     2. **Change Password Card:**
@@ -619,7 +619,7 @@ All authentication endpoints follow REST conventions and return JSON responses.
 1. Validate input with Zod schema
 2. Get current user from `context.locals.supabase.auth.getUser()`
 3. Verify password by attempting sign in
-4. If valid, call Supabase Admin API to delete user (requires service role key)
+4. If valid, call delete_user() function from Supabase to delete user
 5. Flashcards are automatically deleted via CASCADE constraint
 6. Return success or error
 
@@ -941,7 +941,6 @@ Required environment variables in `.env`:
 ```
 SUPABASE_URL=https://xxx.supabase.co
 SUPABASE_KEY=xxx  # Anon/public key
-SUPABASE_SERVICE_ROLE_KEY=xxx  # For admin operations (delete user)
 ```
 
 ---
@@ -1006,7 +1005,6 @@ user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE
 
 ### 4.5. Configuration
 
-- [ ] Add `SUPABASE_SERVICE_ROLE_KEY` to `.env`
 - [ ] Configure email templates in Supabase dashboard
 - [ ] Set password recovery redirect URL in Supabase
 - [ ] Test email delivery
