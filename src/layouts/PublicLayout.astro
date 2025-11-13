@@ -15,6 +15,9 @@ const { title = "10xCards" } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <script is:inline>
@@ -22,13 +25,19 @@ const { title = "10xCards" } = Astro.props;
     </script>
   </head>
   <body>
-    <div class="absolute right-4 top-4">
-      <ThemeToggle client:load />
+    <div class="relative flex min-h-screen flex-col px-4 py-16">
+      <header class="absolute left-0 right-0 top-4 flex items-center justify-between px-4">
+        <div class="flex-1"></div>
+        <h1 class="text-2xl font-bold">10xCards</h1>
+        <div class="flex flex-1 justify-end">
+          <ThemeToggle client:load />
+        </div>
+      </header>
+      <main class="flex flex-1 items-center justify-center">
+        <div class="w-full max-w-md">
+          <slot />
+        </div>
+      </main>
     </div>
-    <main class="min-h-screen flex items-center justify-center p-4">
-      <div class="w-full max-w-md">
-        <slot />
-      </div>
-    </main>
   </body>
 </html>

@@ -6,7 +6,7 @@ This UI architecture defines a secure, responsive web application for "10xCards"
 
 - **Public Zone:** Consists of `Login` and `Register` pages. These are simple, centered forms.
 - **Protected Zone:** Accessible only to authenticated users, enforced by **Astro middleware**. This zone includes all core application functionality (`/my-flashcards`, `/create-flashcards`, etc.) and features a **persistent, responsive header** for primary navigation.
-- **Styling:** **Tailwind** and **Shadcn/ui** will be used for a consistent, accessible, and modern component-based design.
+- **Styling:** **Tailwind** and **Shadcn/ui** will be used for a consistent, accessible, and modern component-based design. The application supports **dark mode** using Tailwind's class-based dark mode strategy, with user preference persisted in localStorage.
 - **State Management:**
   - **Server State:** **React Query** manages all data fetching, caching, and invalidation for the flashcard list (`GET /flashcards`).
   - **Client State:** Local React state (`useState`) manages transient data, such as the AI candidate list on the "Create" page and form inputs.
@@ -176,7 +176,7 @@ The application layout is divided into two distinct zones, managed by Astro's fi
 ### 4.1. Public Layout (Unauthenticated)
 
 - **Paths:** `/login`, `/register`
-- **Structure:** A minimal layout with no header or navigation. Content is centered on the page.
+- **Structure:** A minimal layout with no header or navigation. The "10xCards" logo/title is centered at the top. Content is centered on the page. A theme toggle button is positioned in the top-right corner.
 - **Middleware Logic:** If an authenticated user tries to access these pages, the middleware will redirect them to `/my-flashcards`.
 
 ### 4.2. Protected Layout (Authenticated)
@@ -197,6 +197,7 @@ This header is present on all pages within the Protected Layout.
 - **Center:**
   - `Logo/Brand`: "10xCards" (links to `/my-flashcards`)
 - **Right Side:**
+  - `ThemeToggle`: Icon button to toggle between light and dark mode (persists preference in localStorage)
   - `Button`: "Logout" (clears session, redirects to `/login`) (US-003)
 
 ---

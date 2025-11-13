@@ -39,8 +39,8 @@ export function FlashCard({
           className={cn(
             "absolute inset-0 flex items-center justify-center rounded-lg border-2 p-6 text-center shadow-md transition-opacity hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             isUnreviewed
-              ? "bg-gradient-to-br from-gray-100 to-gray-200 grayscale dark:from-gray-800 dark:to-gray-900"
-              : "bg-gradient-to-br from-blue-400 to-indigo-500 dark:from-blue-600 dark:to-indigo-700",
+              ? "border-muted bg-muted text-muted-foreground"
+              : "border-secondary bg-secondary text-secondary-foreground",
             isFlipped && "pointer-events-none"
           )}
           style={{ backfaceVisibility: "hidden" }}
@@ -55,8 +55,8 @@ export function FlashCard({
           className={cn(
             "absolute inset-0 flex items-center justify-center rounded-lg border-2 p-6 text-center shadow-md transition-opacity hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             isUnreviewed
-              ? "bg-gradient-to-br from-gray-200 to-gray-300 grayscale dark:from-gray-700 dark:to-gray-800"
-              : "bg-gradient-to-br from-purple-400 to-pink-500 dark:from-purple-600 dark:to-pink-700",
+              ? "border-muted bg-muted text-muted-foreground"
+              : "border-secondary bg-secondary/80 text-secondary-foreground",
             !isFlipped && "pointer-events-none"
           )}
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
@@ -69,7 +69,7 @@ export function FlashCard({
       {/* Action buttons */}
       <div className="absolute left-2 top-2 z-10 flex gap-1">
         <Button
-          variant="secondary"
+          variant="outline"
           size="icon"
           className={cn(
             "size-9 rounded-full shadow-sm",
@@ -85,7 +85,7 @@ export function FlashCard({
           <Check className="size-4" />
         </Button>
         <Button
-          variant="secondary"
+          variant="outline"
           size="icon"
           className="size-9 rounded-full shadow-sm"
           onClick={(e) => {
@@ -97,7 +97,7 @@ export function FlashCard({
           <Pencil className="size-4" />
         </Button>
         <Button
-          variant="secondary"
+          variant="outline"
           size="icon"
           className="size-9 rounded-full shadow-sm"
           onClick={(e) => {
