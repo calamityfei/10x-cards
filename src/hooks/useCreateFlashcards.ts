@@ -24,6 +24,7 @@ interface CreateFlashcardsState {
   isSaving: boolean;
   candidates: CandidateCardViewModel[];
   generationMetadata: GenerationMetadataDto | null;
+  initialAICandidatesCount: number;
   error: string | null;
   modalState: {
     isOpen: boolean;
@@ -40,6 +41,7 @@ export function useCreateFlashcards() {
     isSaving: false,
     candidates: [],
     generationMetadata: null,
+    initialAICandidatesCount: 0,
     error: null,
     modalState: {
       isOpen: false,
@@ -86,6 +88,7 @@ export function useCreateFlashcards() {
         isGenerating: false,
         candidates: candidateViewModels,
         generationMetadata: data.metadata,
+        initialAICandidatesCount: candidateViewModels.length,
       }));
     } catch (err) {
       const message = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
@@ -120,7 +123,7 @@ export function useCreateFlashcards() {
   const handleDelete = (id: string) => {
     setState((prev) => ({
       ...prev,
-      candidates: prev.candidates.filter((c) => c.id !== id),
+      candidates: prev.candidates.map((c) => (c.id === id ? { ...c, status: "deleted" as const } : c)),
     }));
   };
 
@@ -181,7 +184,11 @@ export function useCreateFlashcards() {
       const hasAICandidates = savableCards.some((c) => c.source.startsWith("ai"));
 
       if (hasAICandidates && state.generationMetadata) {
-        const metrics = computeGenerationMetrics(state.candidates, state.generationMetadata);
+        const metrics = computeGenerationMetrics(
+          state.candidates,
+          state.generationMetadata,
+          state.initialAICandidatesCount
+        );
         const genData = await saveGenerationLog({ generation_log: metrics });
         generationId = genData.id;
       }
@@ -209,6 +216,7 @@ export function useCreateFlashcards() {
       isSaving: false,
       candidates: [],
       generationMetadata: null,
+      initialAICandidatesCount: 0,
       error: null,
       modalState: {
         isOpen: false,

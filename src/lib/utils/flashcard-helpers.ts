@@ -6,7 +6,11 @@ export function generateClientId(): string {
   return crypto.randomUUID();
 }
 
-export function computeGenerationMetrics(candidates: CandidateCardViewModel[], metadata: GenerationMetadataDto) {
+export function computeGenerationMetrics(
+  candidates: CandidateCardViewModel[],
+  metadata: GenerationMetadataDto,
+  initialAICandidatesCount: number
+) {
   const aiCandidates = candidates.filter((c) => c.source.startsWith("ai"));
   const acceptedUnedited = aiCandidates.filter((c) => c.status === "accepted" && c.source === "ai_full").length;
   const acceptedEdited = aiCandidates.filter((c) => c.status === "edited" && c.source === "ai_edited").length;
@@ -17,7 +21,7 @@ export function computeGenerationMetrics(candidates: CandidateCardViewModel[], m
     generation_duration: metadata.generation_duration_ms,
     source_text_hash: metadata.source_text_hash,
     source_text_length: metadata.source_text_length,
-    generated_count: aiCandidates.length,
+    generated_count: initialAICandidatesCount,
     accepted_unedited_count: acceptedUnedited,
     accepted_edited_count: acceptedEdited,
     deleted_count: deleted,

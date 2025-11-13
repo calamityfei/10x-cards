@@ -54,7 +54,9 @@ export function CandidateReviewList({
     );
   }
 
-  if (candidates.length === 0) {
+  const visibleCandidates = candidates.filter((c) => c.status !== "deleted");
+
+  if (visibleCandidates.length === 0) {
     return (
       <Card>
         <CardContent className="text-center text-muted-foreground">
@@ -66,7 +68,7 @@ export function CandidateReviewList({
 
   return (
     <div className="space-y-4">
-      {candidates.map((candidate) => (
+      {visibleCandidates.map((candidate) => (
         <CandidateCard
           key={candidate.id}
           candidate={candidate}

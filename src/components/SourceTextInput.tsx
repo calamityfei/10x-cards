@@ -50,7 +50,7 @@ export function SourceTextInput({ value, onChange, onGenerate, isGenerating, dis
               id={showError ? "source-text-error" : "source-text-counter"}
               className={cn("text-sm", showError ? "text-destructive" : "text-muted-foreground")}
             >
-              {showError ? errorMessage : `${charCount} / 10,000`}
+              {showError ? errorMessage : `${charCount} / 10,000 characters`}
             </div>
             <Button onClick={onGenerate} disabled={!isValid || disabled} size="sm">
               {isGenerating ? (
