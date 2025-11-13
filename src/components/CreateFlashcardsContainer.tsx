@@ -4,6 +4,7 @@ import { ManualAddButton } from "./ManualAddButton";
 import { CandidateReviewList } from "./CandidateReviewList";
 import { SaveAllButton } from "./SaveAllButton";
 import { FlashcardAddEditModal } from "./FlashcardAddEditModal";
+import { ConfirmRegenerateModal } from "./ConfirmRegenerateModal";
 
 export default function CreateFlashcardsContainer() {
   const { state, handlers, computed } = useCreateFlashcards();
@@ -52,6 +53,12 @@ export default function CreateFlashcardsContainer() {
         initialData={state.modalState.initialData || undefined}
         onSave={handlers.handleModalSave}
         onCancel={handlers.handleModalCancel}
+      />
+
+      <ConfirmRegenerateModal
+        isOpen={state.confirmRegenerateModalOpen}
+        onConfirm={handlers.handleConfirmRegenerate}
+        onCancel={handlers.handleCancelRegenerate}
       />
     </div>
   );

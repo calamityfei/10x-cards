@@ -90,8 +90,9 @@ This section details the primary views (pages) of the application.
     - **State:** Unreviewed cards are greyed out. `accepted` and `edited` cards are full opacity with a green checkmark (Decision #2).
   - `Button`: A final "Save" button to persist all approved/edited/manual cards (US-010).
   - `FlashcardAddEditModal`: (See Key Components) Opened by "Add Manually" (Add Mode) or "Edit" (Edit Mode).
+  - `ConfirmRegenerateModal`: Confirmation dialog shown when user attempts to regenerate AI candidates before saving existing ones.
 - **UX/Accessibility/Security:**
-  - **UX:** The entire page is one complex React island. The review list is managed in local state. The two-step save (`POST /generations` -> `POST /flashcards`) is treated as one UI transaction.
+  - **UX:** The entire page is one complex React island. The review list is managed in local state. The two-step save (`POST /generations` -> `POST /flashcards`) is treated as one UI transaction. Attempting to regenerate before saving triggers a confirmation modal; proceeding discards AI candidates but preserves manual cards.
   - **Accessibility:** All form elements and interactive cards are keyboard-navigable.
   - **Security:** Validation prevents oversize/undersize text submission.
 
@@ -226,6 +227,12 @@ These are reusable React components (built with Shadcn/ui) used across multiple 
     - Deleting a saved flashcard (US-016).
     - Deleting the user's account (US-005).
   - **Features:** A title (e.g., "Are you sure?"), descriptive text ("This action cannot be undone."), a "Cancel" button, and a "Confirm" (or "Delete") button with a destructive visual style.
+
+- **`ConfirmRegenerateModal`**
+  - **Purpose:** To warn users before discarding unsaved AI-generated candidates.
+  - **Used For:**
+    - Regenerating AI candidates on "Create Flashcards" page when unsaved AI candidates exist.
+  - **Features:** A title ("Regenerate Flashcards?"), descriptive text explaining that AI candidates will be discarded but manual cards preserved, a "Cancel" button, and a "Discard & Regenerate" button with destructive styling.
 
 - **`ReusableEmptyState` (Decision #10)**
   - **Purpose:** A standardized component for handling empty lists (might be built upon Shadcn/ui's `Empty` component).

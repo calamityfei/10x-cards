@@ -32,6 +32,7 @@ interface CreateFlashcardsState {
     editingId: string | null;
     initialData: FlashcardFormData | null;
   };
+  confirmRegenerateModalOpen: boolean;
 }
 
 export function useCreateFlashcards() {
@@ -49,6 +50,7 @@ export function useCreateFlashcards() {
       editingId: null,
       initialData: null,
     },
+    confirmRegenerateModalOpen: false,
   });
 
   const handleSourceTextChange = (text: string) => {
@@ -58,7 +60,17 @@ export function useCreateFlashcards() {
   const handleGenerate = async () => {
     if (!isSourceTextValid) return;
 
-    setState((prev) => ({ ...prev, isGenerating: true, error: null }));
+    const hasAICandidates = state.candidates.some((c) => c.source.startsWith("ai"));
+    if (hasAICandidates) {
+      setState((prev) => ({ ...prev, confirmRegenerateModalOpen: true }));
+      return;
+    }
+
+    executeGeneration();
+  };
+
+  const executeGeneration = async () => {
+    setState((prev) => ({ ...prev, isGenerating: true, error: null, confirmRegenerateModalOpen: false }));
 
     try {
       const data = await generateCandidates(state.sourceText);
@@ -83,10 +95,12 @@ export function useCreateFlashcards() {
         originalBack: candidate.back,
       }));
 
+      const manualCards = state.candidates.filter((c) => c.source === "manual");
+
       setState((prev) => ({
         ...prev,
         isGenerating: false,
-        candidates: candidateViewModels,
+        candidates: [...candidateViewModels, ...manualCards],
         generationMetadata: data.metadata,
         initialAICandidatesCount: candidateViewModels.length,
       }));
@@ -209,6 +223,14 @@ export function useCreateFlashcards() {
     }
   };
 
+  const handleConfirmRegenerate = () => {
+    executeGeneration();
+  };
+
+  const handleCancelRegenerate = () => {
+    setState((prev) => ({ ...prev, confirmRegenerateModalOpen: false }));
+  };
+
   const resetState = () => {
     setState({
       sourceText: "",
@@ -224,6 +246,7 @@ export function useCreateFlashcards() {
         editingId: null,
         initialData: null,
       },
+      confirmRegenerateModalOpen: false,
     });
   };
 
@@ -243,6 +266,8 @@ export function useCreateFlashcards() {
       handleModalSave,
       handleModalCancel,
       handleSaveAll,
+      handleConfirmRegenerate,
+      handleCancelRegenerate,
     },
     computed: {
       isSourceTextValid,

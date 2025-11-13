@@ -30,11 +30,16 @@ CreateFlashcardsPage (Astro)
     │           ├── EditButton
     │           └── DeleteButton
     ├── SaveAllButton (React)
-    └── FlashcardAddEditModal (React)
-        ├── FrontInput
-        ├── BackInput
-        ├── SaveButton
-        └── CancelButton
+    ├── FlashcardAddEditModal (React)
+    │   ├── FrontInput
+    │   ├── BackInput
+    │   ├── SaveButton
+    │   └── CancelButton
+    └── ConfirmRegenerateModal (React)
+        ├── Title
+        ├── Description
+        ├── CancelButton
+        └── ConfirmButton
 ```
 
 ## 4. Component Details
@@ -59,6 +64,7 @@ CreateFlashcardsPage (Astro)
   - `<CandidateReviewList />` to display and manage candidates
   - `<SaveAllButton />` to persist approved cards
   - `<FlashcardAddEditModal />` for add/edit operations
+  - `<ConfirmRegenerateModal />` for confirming regeneration when unsaved AI candidates exist
 - **Handled events**:
   - `onGenerateCandidates`: Calls `POST /api/generations/generate-candidates`
   - `onSaveAll`: Calls `POST /api/generations` (if any AI generated candidates), then `POST /api/flashcards`
@@ -192,6 +198,25 @@ CreateFlashcardsPage (Astro)
   - `onSave: (data: FlashcardFormData) => void` - Save handler
   - `onCancel: () => void` - Cancel handler
 
+### ConfirmRegenerateModal (React)
+
+- **Description**: Confirmation modal shown when user attempts to regenerate AI candidates while unsaved AI candidates exist.
+- **Main elements**:
+  - Modal overlay and container
+  - Title: "Regenerate Flashcards?"
+  - Description: Warning that AI candidates will be discarded, manual cards preserved
+  - `<Button variant="outline">` Cancel button
+  - `<Button variant="destructive">` Discard & Regenerate button
+- **Handled events**:
+  - `onConfirm`: Proceeds with regeneration, clearing AI candidates
+  - `onCancel`: Closes modal without action
+- **Validation conditions**: None
+- **Types**: `ConfirmRegenerateModalProps`
+- **Props**:
+  - `isOpen: boolean` - Modal visibility
+  - `onConfirm: () => void` - Confirm handler
+  - `onCancel: () => void` - Cancel handler
+
 ## 5. Types
 
 ### CandidateCardViewModel
@@ -221,6 +246,7 @@ interface CreateFlashcardsState {
   isSaving: boolean;
   candidates: CandidateCardViewModel[];
   generationMetadata: GenerationMetadataDto | null;
+  initialAICandidatesCount: number;
   error: string | null;
   modalState: {
     isOpen: boolean;
@@ -228,6 +254,7 @@ interface CreateFlashcardsState {
     editingId: string | null;
     initialData: FlashcardFormData | null;
   };
+  confirmRegenerateModalOpen: boolean;
 }
 ```
 
@@ -297,6 +324,16 @@ interface FlashcardAddEditModalProps {
   mode: "add" | "edit";
   initialData?: FlashcardFormData;
   onSave: (data: FlashcardFormData) => void;
+  onCancel: () => void;
+}
+```
+
+### ConfirmRegenerateModalProps
+
+```typescript
+interface ConfirmRegenerateModalProps {
+  isOpen: boolean;
+  onConfirm: () => void;
   onCancel: () => void;
 }
 ```
@@ -485,10 +522,14 @@ await fetch("/api/flashcards", {
 2. Character counter updates in real-time
 3. If text is < 1,000 or > 10,000 chars, validation error displays and Generate button is disabled
 4. User clicks "Generate" button
-5. Button shows loading spinner, textarea is disabled
-6. Skeleton loaders appear in the review list
-7. On success: Candidates populate the list in "unreviewed" state (greyed out)
-8. On error: Error message displays with appropriate guidance
+5. If unsaved AI candidates exist:
+   - Confirmation modal appears with warning message
+   - User can cancel or proceed
+   - If user proceeds: AI candidates (and metadata) are cleared, manual cards are preserved
+6. Button shows loading spinner, textarea is disabled
+7. Skeleton loaders appear in the review list (manual cards remain visible below)
+8. On success: New candidates populate the list in "unreviewed" state (greyed out)
+9. On error: Error message displays with appropriate guidance
 
 ### Accept AI Candidate (US-007)
 
