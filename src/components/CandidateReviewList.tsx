@@ -23,18 +23,9 @@ export function CandidateReviewList({
 }: CandidateReviewListProps) {
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Card key={i}>
-            <CardContent className="space-y-4">
-              <Skeleton className="h-20 w-full" />
-              <div className="flex gap-2">
-                <Skeleton className="h-9 w-24" />
-                <Skeleton className="h-9 w-24" />
-                <Skeleton className="h-9 w-24" />
-              </div>
-            </CardContent>
-          </Card>
+          <Skeleton key={i} className="h-64 w-full rounded-lg" />
         ))}
       </div>
     );
@@ -67,7 +58,7 @@ export function CandidateReviewList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
       {visibleCandidates.map((candidate) => (
         <CandidateCard
           key={candidate.id}

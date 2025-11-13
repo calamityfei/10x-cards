@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,34 +25,90 @@ export function FlashCard({
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
-    <Card className={cn("transition-opacity", isUnreviewed && "opacity-50")}>
-      <CardContent className="space-y-4">
+    <div className="relative h-64 w-full" style={{ perspective: "1000px" }}>
+      <div
+        className={cn(
+          "relative h-full w-full transition-transform duration-500",
+          isFlipped && "[transform:rotateY(180deg)]"
+        )}
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        {/* Front */}
         <button
-          onClick={() => setIsFlipped(!isFlipped)}
-          className="w-full rounded-md border bg-muted/30 p-6 text-left transition-all hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label={isFlipped ? "Show front of card" : "Show back of card"}
+          onClick={() => setIsFlipped(true)}
+          className={cn(
+            "absolute inset-0 flex items-center justify-center rounded-lg border-2 p-6 text-center shadow-md transition-opacity hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            isUnreviewed
+              ? "bg-gradient-to-br from-gray-100 to-gray-200 grayscale dark:from-gray-800 dark:to-gray-900"
+              : "bg-gradient-to-br from-blue-400 to-indigo-500 dark:from-blue-600 dark:to-indigo-700",
+            isFlipped && "pointer-events-none"
+          )}
+          style={{ backfaceVisibility: "hidden" }}
+          aria-label="Show back of card"
         >
-          <div className="mb-2 text-xs font-medium uppercase text-muted-foreground">{isFlipped ? "Back" : "Front"}</div>
-          <div className="text-sm">{isFlipped ? back : front}</div>
+          <p className="text-base font-semibold sm:text-lg">{front}</p>
         </button>
 
-        <div className="flex items-center gap-2">
-          {showAcceptButton && onAccept && (
-            <Button variant="outline" size="sm" onClick={onAccept}>
-              <Check />
-              Accept
-            </Button>
+        {/* Back */}
+        <button
+          onClick={() => setIsFlipped(false)}
+          className={cn(
+            "absolute inset-0 flex items-center justify-center rounded-lg border-2 p-6 text-center shadow-md transition-opacity hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            isUnreviewed
+              ? "bg-gradient-to-br from-gray-200 to-gray-300 grayscale dark:from-gray-700 dark:to-gray-800"
+              : "bg-gradient-to-br from-purple-400 to-pink-500 dark:from-purple-600 dark:to-pink-700",
+            !isFlipped && "pointer-events-none"
           )}
-          <Button variant="outline" size="sm" onClick={onEdit}>
-            <Pencil />
-            Edit
-          </Button>
-          <Button variant="outline" size="sm" onClick={onDelete}>
-            <Trash2 />
-            Delete
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+          aria-label="Show front of card"
+        >
+          <p className="text-sm sm:text-base">{back}</p>
+        </button>
+      </div>
+
+      {/* Action buttons */}
+      <div className="absolute left-2 top-2 z-10 flex gap-1">
+        <Button
+          variant="secondary"
+          size="icon"
+          className={cn(
+            "size-9 rounded-full shadow-sm",
+            !showAcceptButton && "bg-green-500 text-white hover:bg-green-500"
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (showAcceptButton && onAccept) onAccept();
+          }}
+          disabled={!showAcceptButton}
+          aria-label={showAcceptButton ? "Accept card" : "Card accepted"}
+        >
+          <Check className="size-4" />
+        </Button>
+        <Button
+          variant="secondary"
+          size="icon"
+          className="size-9 rounded-full shadow-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+          aria-label="Edit card"
+        >
+          <Pencil className="size-4" />
+        </Button>
+        <Button
+          variant="secondary"
+          size="icon"
+          className="size-9 rounded-full shadow-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          aria-label="Delete card"
+        >
+          <Trash2 className="size-4" />
+        </Button>
+      </div>
+    </div>
   );
 }

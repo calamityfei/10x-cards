@@ -11,18 +11,20 @@ interface SaveAllButtonProps {
 
 export function SaveAllButton({ onClick, disabled, isSaving, count }: SaveAllButtonProps) {
   return (
-    <Button onClick={onClick} disabled={disabled} size="lg">
-      {isSaving ? (
-        <>
-          <Spinner />
-          Saving...
-        </>
-      ) : (
-        <>
-          <Save />
-          Save All Cards ({count})
-        </>
-      )}
-    </Button>
+    <div className="fixed bottom-6 right-6 z-50">
+      <Button onClick={onClick} disabled={disabled} size="lg" className="shadow-lg">
+        {isSaving ? (
+          <>
+            <Spinner />
+            Saving...
+          </>
+        ) : (
+          <>
+            <Save />
+            Save All Cards ({count})
+          </>
+        )}
+      </Button>
+    </div>
   );
 }

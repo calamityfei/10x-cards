@@ -10,13 +10,16 @@ export default function CreateFlashcardsContainer() {
   const { state, handlers, computed } = useCreateFlashcards();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 p-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Create Flashcards</h1>
-        <p className="text-muted-foreground">
-          Paste your study notes below and let AI generate flashcards, or create them manually.
-        </p>
+    <div className="mx-auto max-w-7xl space-y-8 p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold">Create Flashcards</h1>
+        </div>
+        <ManualAddButton onClick={handlers.handleOpenManualAdd} disabled={state.isSaving} />
       </div>
+      <p className="text-muted-foreground">
+        Paste your study notes below and let AI generate flashcards, or create them manually.
+      </p>
 
       <SourceTextInput
         value={state.sourceText}
@@ -26,18 +29,6 @@ export default function CreateFlashcardsContainer() {
         disabled={state.isGenerating || state.isSaving}
       />
 
-      <div className="flex items-center justify-between">
-        <ManualAddButton onClick={handlers.handleOpenManualAdd} disabled={state.isSaving} />
-        {computed.savableCards.length > 0 && (
-          <SaveAllButton
-            onClick={handlers.handleSaveAll}
-            disabled={!computed.canSave}
-            isSaving={state.isSaving}
-            count={computed.savableCards.length}
-          />
-        )}
-      </div>
-
       <CandidateReviewList
         candidates={state.candidates}
         isLoading={state.isGenerating}
@@ -46,6 +37,15 @@ export default function CreateFlashcardsContainer() {
         onEdit={handlers.handleEdit}
         onDelete={handlers.handleDelete}
       />
+
+      {computed.savableCards.length > 0 && (
+        <SaveAllButton
+          onClick={handlers.handleSaveAll}
+          disabled={!computed.canSave}
+          isSaving={state.isSaving}
+          count={computed.savableCards.length}
+        />
+      )}
 
       <FlashcardAddEditModal
         isOpen={state.modalState.isOpen}
