@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { ThemeToggle } from "../components/ThemeToggle";
 
 interface Props {
   title?: string;
@@ -16,8 +17,14 @@ const { title = "10xCards" } = Astro.props;
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <script is:inline>
+      if (localStorage.getItem("theme") === "dark") document.documentElement.classList.add("dark");
+    </script>
   </head>
   <body>
+    <div class="absolute right-4 top-4">
+      <ThemeToggle client:load />
+    </div>
     <main class="min-h-screen flex items-center justify-center p-4">
       <div class="w-full max-w-md">
         <slot />

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function PersistentHeader() {
   const [isLoading, setIsLoading] = useState(false);
@@ -41,9 +42,12 @@ export function PersistentHeader() {
             </a>
           </nav>
         </div>
-        <Button variant="ghost" onClick={handleLogout} disabled={isLoading}>
-          {isLoading ? "Logging out..." : "Logout"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Button variant="ghost" onClick={handleLogout} disabled={isLoading}>
+            {isLoading ? "Logging out..." : "Logout"}
+          </Button>
+        </div>
       </div>
     </header>
   );
