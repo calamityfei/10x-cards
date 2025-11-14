@@ -1,5 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -28,20 +30,15 @@ export function SourceTextInput({ value, onChange, onGenerate, isGenerating, dis
     <Card>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="source-text" className="text-sm font-medium">
-            Source Text
-          </label>
-          <textarea
+          <Label htmlFor="source-text">Source Text</Label>
+          <Textarea
             id="source-text"
             rows={10}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
             placeholder="Paste your study notes here (1,000-10,000 characters)..."
-            className={cn(
-              "w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
-              showError && "border-destructive"
-            )}
+            className={cn(showError && "border-destructive")}
             aria-invalid={showError}
             aria-describedby={showError ? "source-text-error" : "source-text-counter"}
           />

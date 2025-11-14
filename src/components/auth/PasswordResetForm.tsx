@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function PasswordResetForm() {
@@ -67,10 +71,8 @@ export function PasswordResetForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium">
-          New Password
-        </label>
-        <input
+        <Label htmlFor="password">New Password</Label>
+        <Input
           id="password"
           type="password"
           value={password}
@@ -78,34 +80,33 @@ export function PasswordResetForm() {
           placeholder="Enter new password"
           required
           minLength={8}
-          className={cn(
-            "w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-            errors.password && "border-destructive"
-          )}
+          aria-invalid={!!errors.password}
+          className={cn(errors.password && "border-destructive")}
         />
-        {errors.password && <div className="text-xs text-destructive">{errors.password}</div>}
+        {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="confirmPassword" className="text-sm font-medium">
-          Confirm Password
-        </label>
-        <input
+        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Input
           id="confirmPassword"
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="Confirm new password"
           required
-          className={cn(
-            "w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-            errors.confirmPassword && "border-destructive"
-          )}
+          aria-invalid={!!errors.confirmPassword}
+          className={cn(errors.confirmPassword && "border-destructive")}
         />
-        {errors.confirmPassword && <div className="text-xs text-destructive">{errors.confirmPassword}</div>}
+        {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
       </div>
 
-      {errors.general && <div className="text-sm text-destructive">{errors.general}</div>}
+      {errors.general && (
+        <Alert variant="destructive">
+          <AlertCircle />
+          <AlertDescription>{errors.general}</AlertDescription>
+        </Alert>
+      )}
 
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? "Resetting..." : "Reset Password"}

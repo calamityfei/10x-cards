@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DeleteAccountModal } from "./DeleteAccountModal";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AccountSettingsProps {
@@ -93,63 +97,61 @@ export function AccountSettings({ email }: AccountSettingsProps) {
         <CardContent>
           <form onSubmit={handlePasswordChange} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="currentPassword" className="text-sm font-medium">
-                Current Password
-              </label>
-              <input
+              <Label htmlFor="currentPassword">Current Password</Label>
+              <Input
                 id="currentPassword"
                 type="password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter current password"
-                className={cn(
-                  "w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                  errors.currentPassword && "border-destructive"
-                )}
+                aria-invalid={!!errors.currentPassword}
+                className={cn(errors.currentPassword && "border-destructive")}
               />
-              {errors.currentPassword && <div className="text-xs text-destructive">{errors.currentPassword}</div>}
+              {errors.currentPassword && <p className="text-xs text-destructive">{errors.currentPassword}</p>}
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="newPassword" className="text-sm font-medium">
-                New Password
-              </label>
-              <input
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
                 id="newPassword"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Enter new password"
                 minLength={8}
-                className={cn(
-                  "w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                  errors.newPassword && "border-destructive"
-                )}
+                aria-invalid={!!errors.newPassword}
+                className={cn(errors.newPassword && "border-destructive")}
               />
-              {errors.newPassword && <div className="text-xs text-destructive">{errors.newPassword}</div>}
+              {errors.newPassword && <p className="text-xs text-destructive">{errors.newPassword}</p>}
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="text-sm font-medium">
-                Confirm New Password
-              </label>
-              <input
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm new password"
-                className={cn(
-                  "w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                  errors.confirmPassword && "border-destructive"
-                )}
+                aria-invalid={!!errors.confirmPassword}
+                className={cn(errors.confirmPassword && "border-destructive")}
               />
-              {errors.confirmPassword && <div className="text-xs text-destructive">{errors.confirmPassword}</div>}
+              {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
             </div>
 
-            {errors.general && <div className="text-sm text-destructive">{errors.general}</div>}
+            {errors.general && (
+              <Alert variant="destructive">
+                <AlertCircle />
+                <AlertDescription>{errors.general}</AlertDescription>
+              </Alert>
+            )}
 
-            {success && <div className="text-sm text-green-600">Password updated successfully</div>}
+            {success && (
+              <Alert>
+                <CheckCircle2 className="text-green-600" />
+                <AlertDescription className="text-green-600">Password updated successfully</AlertDescription>
+              </Alert>
+            )}
 
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Updating..." : "Update Password"}

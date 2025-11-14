@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { FlashcardFormData } from "@/hooks/useCreateFlashcards";
 
@@ -41,20 +44,16 @@ export function FlashcardAddEditModal({ isOpen, mode, initialData, onSave, onCan
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="front" className="text-sm font-medium">
-              Front
-            </label>
-            <input
+            <Label htmlFor="front">Front</Label>
+            <Input
               id="front"
               type="text"
               value={front}
               onChange={(e) => setFront(e.target.value)}
               placeholder="Enter front text..."
               maxLength={200}
-              className={cn(
-                "w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                front.length > 200 && "border-destructive"
-              )}
+              aria-invalid={front.length > 200}
+              className={cn(front.length > 200 && "border-destructive")}
             />
             <div
               className={cn("text-right text-xs", front.length > 200 ? "text-destructive" : "text-muted-foreground")}
@@ -64,20 +63,16 @@ export function FlashcardAddEditModal({ isOpen, mode, initialData, onSave, onCan
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="back" className="text-sm font-medium">
-              Back
-            </label>
-            <textarea
+            <Label htmlFor="back">Back</Label>
+            <Textarea
               id="back"
               rows={4}
               value={back}
               onChange={(e) => setBack(e.target.value)}
               placeholder="Enter back text..."
               maxLength={500}
-              className={cn(
-                "w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                back.length > 500 && "border-destructive"
-              )}
+              aria-invalid={back.length > 500}
+              className={cn(back.length > 500 && "border-destructive")}
             />
             <div className={cn("text-right text-xs", back.length > 500 ? "text-destructive" : "text-muted-foreground")}>
               {back.length} / 500
