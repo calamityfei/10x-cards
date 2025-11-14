@@ -8,6 +8,7 @@ interface FlashCardProps {
   back: string;
   isUnreviewed?: boolean;
   showAcceptButton?: boolean;
+  hideAcceptButton?: boolean;
   onAccept?: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -18,6 +19,7 @@ export function FlashCard({
   back,
   isUnreviewed = false,
   showAcceptButton = false,
+  hideAcceptButton = false,
   onAccept,
   onEdit,
   onDelete,
@@ -67,23 +69,25 @@ export function FlashCard({
       </div>
 
       {/* Action buttons */}
-      <div className="absolute left-2 top-2 z-10 flex gap-1">
-        <Button
-          variant="outline"
-          size="icon"
-          className={cn(
-            "size-9 rounded-full shadow-sm",
-            !showAcceptButton && "bg-green-500 text-white hover:bg-green-500"
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (showAcceptButton && onAccept) onAccept();
-          }}
-          disabled={!showAcceptButton}
-          aria-label={showAcceptButton ? "Accept card" : "Card accepted"}
-        >
-          <Check className="size-4" />
-        </Button>
+      <div className="absolute bottom-2 left-2 z-10 flex gap-1">
+        {!hideAcceptButton && (
+          <Button
+            variant="outline"
+            size="icon"
+            className={cn(
+              "size-9 rounded-full shadow-sm",
+              !showAcceptButton && "bg-green-500 text-white hover:bg-green-500"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (showAcceptButton && onAccept) onAccept();
+            }}
+            disabled={!showAcceptButton}
+            aria-label={showAcceptButton ? "Accept card" : "Card accepted"}
+          >
+            <Check className="size-4" />
+          </Button>
+        )}
         <Button
           variant="outline"
           size="icon"

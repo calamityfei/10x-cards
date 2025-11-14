@@ -73,7 +73,7 @@ export interface GetFlashcardsQueryDto {
   limit?: number;
   search?: string;
   /** Field to sort by. */
-  sort?: "created_at" | "updated_at" | "front";
+  sort?: "created_at" | "updated_at" | "front" | "back";
   /** Sort order. */
   order?: "asc" | "desc";
 }
@@ -183,3 +183,20 @@ export interface CreateGenerationCommand {
  * Returns the newly created `generations` log entry.
  */
 export type CreateGenerationResponseDto = Omit<GenerationRow, "user_id">;
+
+// --- View Models ---
+
+/**
+ * View model for modal states.
+ * Tracks which modal is open and associated data.
+ */
+export interface ModalState {
+  editModal: {
+    isOpen: boolean;
+    flashcard: FlashcardDto | null;
+  };
+  deleteModal: {
+    isOpen: boolean;
+    flashcard: FlashcardDto | null;
+  };
+}

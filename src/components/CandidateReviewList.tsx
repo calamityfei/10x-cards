@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle } from "lucide-react";
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+import { FlashcardGrid } from "./FlashcardGrid";
+import { AlertCircle, FileText } from "lucide-react";
 import type { CandidateCardViewModel } from "@/hooks/useCreateFlashcards";
 import { CandidateCard } from "./CandidateCard";
 
@@ -21,16 +22,6 @@ export function CandidateReviewList({
   onEdit,
   onDelete,
 }: CandidateReviewListProps) {
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-64 w-full rounded-lg" />
-        ))}
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <Card className="border-destructive/50 bg-destructive/5">
@@ -49,16 +40,20 @@ export function CandidateReviewList({
 
   if (visibleCandidates.length === 0) {
     return (
-      <Card>
-        <CardContent className="text-center text-muted-foreground">
-          <p>No flashcards yet. Generate from text or add manually.</p>
-        </CardContent>
-      </Card>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <FileText />
+          </EmptyMedia>
+          <EmptyTitle>No flashcards yet</EmptyTitle>
+          <EmptyDescription>Generate from text or add manually to get started.</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(320px,1fr))]">
+    <FlashcardGrid isLoading={isLoading}>
       {visibleCandidates.map((candidate) => (
         <CandidateCard
           key={candidate.id}
@@ -68,6 +63,6 @@ export function CandidateReviewList({
           onDelete={() => onDelete(candidate.id)}
         />
       ))}
-    </div>
+    </FlashcardGrid>
   );
 }

@@ -1,0 +1,14 @@
+---
+import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
+import MyFlashcardsView from "@/components/MyFlashcardsView";
+
+export const prerender = false;
+
+if (!Astro.locals.user) {
+  return Astro.redirect("/login");
+}
+---
+
+<ProtectedLayout title="My Flashcards">
+  <MyFlashcardsView client:load />
+</ProtectedLayout>
