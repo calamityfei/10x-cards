@@ -37,6 +37,9 @@ export function PersistentHeader() {
             <a href="/my-flashcards" className="text-sm hover:text-primary">
               My Flashcards
             </a>
+            <a href="/study-session" className="text-sm hover:text-primary">
+              Study
+            </a>
             <a href="/my-account" className="text-sm hover:text-primary">
               Account
             </a>
