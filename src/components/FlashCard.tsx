@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,39 @@ export function FlashCard({
   onDelete,
 }: FlashCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const frontRef = useRef<HTMLParagraphElement>(null);
+  const backRef = useRef<HTMLParagraphElement>(null);
+  const [frontFontSize, setFrontFontSize] = useState(16);
+  const [backFontSize, setBackFontSize] = useState(14);
+
+  useEffect(() => {
+    const calculateFontSize = (element: HTMLParagraphElement | null, baseFontSize: number) => {
+      if (!element) return baseFontSize;
+      const container = element.parentElement;
+      if (!container) return baseFontSize;
+
+      // Reset to base size first
+      element.style.fontSize = `${baseFontSize}px`;
+
+      // Get computed padding from the container
+      const computedStyle = window.getComputedStyle(container);
+      const paddingTop = parseFloat(computedStyle.paddingTop);
+      const paddingBottom = parseFloat(computedStyle.paddingBottom);
+      const verticalPadding = paddingTop + paddingBottom;
+
+      const availableHeight = container.clientHeight - verticalPadding;
+      const contentHeight = element.scrollHeight;
+
+      if (contentHeight > availableHeight) {
+        const ratio = availableHeight / contentHeight;
+        return Math.max(baseFontSize * ratio, 10);
+      }
+      return baseFontSize;
+    };
+
+    setFrontFontSize(calculateFontSize(frontRef.current, 20));
+    setBackFontSize(calculateFontSize(backRef.current, 14));
+  }, [front, back]);
 
   return (
     <div className="relative h-64 w-full" style={{ perspective: "1000px" }}>
@@ -39,7 +72,7 @@ export function FlashCard({
         <button
           onClick={() => setIsFlipped(true)}
           className={cn(
-            "absolute inset-0 flex items-center justify-center rounded-lg border-2 p-6 text-center shadow-md transition-opacity hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "absolute inset-0 flex items-center justify-center rounded-lg border-2 px-6 py-10 text-center shadow-md transition-opacity hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             isUnreviewed
               ? "border-muted bg-muted text-muted-foreground"
               : "border-secondary bg-secondary text-secondary-foreground",
@@ -48,14 +81,23 @@ export function FlashCard({
           style={{ backfaceVisibility: "hidden" }}
           aria-label="Show back of card"
         >
-          <p className="text-base font-semibold sm:text-lg">{front}</p>
+          <p
+            ref={frontRef}
+            className="break-words"
+            style={{
+              wordBreak: "break-word",
+              fontSize: `${frontFontSize}px`,
+            }}
+          >
+            {front}
+          </p>
         </button>
 
         {/* Back */}
         <button
           onClick={() => setIsFlipped(false)}
           className={cn(
-            "absolute inset-0 flex items-center justify-center rounded-lg border-2 p-6 text-center shadow-md transition-opacity hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "absolute inset-0 flex items-center justify-center rounded-lg border-2 px-6 py-10 text-center shadow-md transition-opacity hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             isUnreviewed
               ? "border-muted bg-muted text-muted-foreground"
               : "border-secondary bg-secondary/80 text-secondary-foreground",
@@ -64,7 +106,16 @@ export function FlashCard({
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
           aria-label="Show front of card"
         >
-          <p className="text-sm sm:text-base">{back}</p>
+          <p
+            ref={backRef}
+            className="break-words"
+            style={{
+              wordBreak: "break-word",
+              fontSize: `${backFontSize}px`,
+            }}
+          >
+            {back}
+          </p>
         </button>
       </div>
 
