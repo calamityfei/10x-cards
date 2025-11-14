@@ -21,7 +21,7 @@ export function SaveAllButton({ onClick, disabled, isSaving, count }: SaveAllBut
         ) : (
           <>
             <Save />
-            Save All Cards ({count})
+            Save Cards ({count})
           </>
         )}
       </Button>

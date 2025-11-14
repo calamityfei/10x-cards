@@ -14,7 +14,8 @@ export function computeGenerationMetrics(
   const aiCandidates = candidates.filter((c) => c.source.startsWith("ai"));
   const acceptedUnedited = aiCandidates.filter((c) => c.status === "accepted" && c.source === "ai_full").length;
   const acceptedEdited = aiCandidates.filter((c) => c.status === "edited" && c.source === "ai_edited").length;
-  const deleted = aiCandidates.filter((c) => c.status === "deleted").length;
+  // Count both explicitly deleted and unreviewed cards as deleted for metrics
+  const deleted = aiCandidates.filter((c) => c.status === "deleted" || c.status === "unreviewed").length;
 
   return {
     model: metadata.model_used,

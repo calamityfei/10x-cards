@@ -91,6 +91,7 @@ This section details the primary views (pages) of the application.
   - `Button`: A final "Save" button to persist all approved/edited/manual cards (US-010).
   - `FlashcardAddEditModal`: (See Key Components) Opened by "Add Manually" (Add Mode) or "Edit" (Edit Mode).
   - `ConfirmRegenerateModal`: Confirmation dialog shown when user attempts to regenerate AI candidates before saving existing ones.
+  - `ConfirmPartialSaveModal`: Confirmation dialog shown when user attempts to save with unreviewed AI candidates remaining.
 - **UX/Accessibility/Security:**
   - **UX:** The entire page is one complex React island. The review list is managed in local state. The two-step save (`POST /generations` -> `POST /flashcards`) is treated as one UI transaction. Attempting to regenerate before saving triggers a confirmation modal; proceeding discards AI candidates but preserves manual cards.
   - **Accessibility:** All form elements and interactive cards are keyboard-navigable.
@@ -155,7 +156,9 @@ This map outlines the primary flow for a new user creating their first set of fl
       - User fills and saves. (UI: A new card is added to the list with a green check).
     - **Action (Save):**
       - User clicks the final "Save" button.
-      - **API 1:** `POST /generations` (logs metrics: 1 accepted, 1 edited, 1 deleted).
+      - If unreviewed AI candidates exist, a confirmation modal appears.
+      - User confirms to proceed.
+      - **API 1:** `POST /generations` (logs metrics: 1 accepted, 1 edited, 1 deleted + unreviewed count).
       - **API 2:** `POST /flashcards` (sends a batch of 3 cards: Card 1, Edited Card 2, Manual Card).
     - **UI:** On success, a "Flashcards saved!" toast appears, and the review list is cleared.
 6.  **Navigate to `/my-flashcards`:**
@@ -234,6 +237,12 @@ These are reusable React components (built with Shadcn/ui) used across multiple 
   - **Used For:**
     - Regenerating AI candidates on "Create Flashcards" page when unsaved AI candidates exist.
   - **Features:** A title ("Regenerate Flashcards?"), descriptive text explaining that AI candidates will be discarded but manual cards preserved, a "Cancel" button, and a "Discard & Regenerate" button with destructive styling.
+
+- **`ConfirmPartialSaveModal`**
+  - **Purpose:** To warn users before saving partially reviewed flashcard candidates.
+  - **Used For:**
+    - Saving flashcards on "Create Flashcards" page when unreviewed AI candidates exist.
+  - **Features:** A title ("Save Partially Reviewed Flashcards?"), descriptive text explaining that unreviewed candidates will be discarded and counted as deleted in metrics, a "Cancel" button, and a "Discard & Save" button with destructive styling.
 
 - **`ReusableEmptyState` (Decision #10)**
   - **Purpose:** A standardized component for handling empty lists (might be built upon Shadcn/ui's `Empty` component).

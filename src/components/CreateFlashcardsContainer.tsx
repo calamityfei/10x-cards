@@ -5,6 +5,7 @@ import { CandidateReviewList } from "./CandidateReviewList";
 import { SaveAllButton } from "./SaveAllButton";
 import { FlashcardAddEditModal } from "./FlashcardAddEditModal";
 import { ConfirmRegenerateModal } from "./ConfirmRegenerateModal";
+import { ConfirmPartialSaveModal } from "./ConfirmPartialSaveModal";
 
 export default function CreateFlashcardsContainer() {
   const { state, handlers, computed } = useCreateFlashcards();
@@ -59,6 +60,13 @@ export default function CreateFlashcardsContainer() {
         isOpen={state.confirmRegenerateModalOpen}
         onConfirm={handlers.handleConfirmRegenerate}
         onCancel={handlers.handleCancelRegenerate}
+      />
+
+      <ConfirmPartialSaveModal
+        isOpen={state.confirmPartialSaveModalOpen}
+        unreviewedCount={computed.unreviewedAICandidatesCount}
+        onConfirm={handlers.handleConfirmPartialSave}
+        onCancel={handlers.handleCancelPartialSave}
       />
     </div>
   );

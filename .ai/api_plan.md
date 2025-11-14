@@ -178,7 +178,7 @@
 
 #### POST /generations
 
-- **Description**: (Transactional Endpoint) Saves a batch of flashcards and logs the single generation event that created them (US-010). This is called _after_ the user reviews candidates from the endpoint above.
+- **Description**: (Transactional Endpoint) Saves a batch of flashcards and logs the single generation event that created them (US-010). This is called _after_ the user reviews candidates from the endpoint above. The `deleted_count` includes both explicitly deleted cards and unreviewed cards that were discarded during partial save.
 - **Request Payload**:
   ```json
   {

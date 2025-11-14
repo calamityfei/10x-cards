@@ -33,6 +33,7 @@ interface CreateFlashcardsState {
     initialData: FlashcardFormData | null;
   };
   confirmRegenerateModalOpen: boolean;
+  confirmPartialSaveModalOpen: boolean;
 }
 
 export function useCreateFlashcards() {
@@ -51,6 +52,7 @@ export function useCreateFlashcards() {
       initialData: null,
     },
     confirmRegenerateModalOpen: false,
+    confirmPartialSaveModalOpen: false,
   });
 
   const handleSourceTextChange = (text: string) => {
@@ -190,7 +192,20 @@ export function useCreateFlashcards() {
   const handleSaveAll = async () => {
     if (!canSave) return;
 
-    setState((prev) => ({ ...prev, isSaving: true, error: null }));
+    const unreviewedAICandidates = state.candidates.filter(
+      (c) => c.source.startsWith("ai") && c.status === "unreviewed"
+    );
+
+    if (unreviewedAICandidates.length > 0) {
+      setState((prev) => ({ ...prev, confirmPartialSaveModalOpen: true }));
+      return;
+    }
+
+    executeSave();
+  };
+
+  const executeSave = async () => {
+    setState((prev) => ({ ...prev, isSaving: true, error: null, confirmPartialSaveModalOpen: false }));
 
     try {
       let generationId: number | null = null;
@@ -231,6 +246,14 @@ export function useCreateFlashcards() {
     setState((prev) => ({ ...prev, confirmRegenerateModalOpen: false }));
   };
 
+  const handleConfirmPartialSave = () => {
+    executeSave();
+  };
+
+  const handleCancelPartialSave = () => {
+    setState((prev) => ({ ...prev, confirmPartialSaveModalOpen: false }));
+  };
+
   const resetState = () => {
     setState({
       sourceText: "",
@@ -247,11 +270,15 @@ export function useCreateFlashcards() {
         initialData: null,
       },
       confirmRegenerateModalOpen: false,
+      confirmPartialSaveModalOpen: false,
     });
   };
 
   const isSourceTextValid = state.sourceText.length >= 1000 && state.sourceText.length <= 10000;
   const savableCards = state.candidates.filter((c) => c.status === "accepted" || c.status === "edited");
+  const unreviewedAICandidatesCount = state.candidates.filter(
+    (c) => c.source.startsWith("ai") && c.status === "unreviewed"
+  ).length;
   const canSave = savableCards.length > 0 && !state.isSaving;
 
   return {
@@ -268,10 +295,13 @@ export function useCreateFlashcards() {
       handleSaveAll,
       handleConfirmRegenerate,
       handleCancelRegenerate,
+      handleConfirmPartialSave,
+      handleCancelPartialSave,
     },
     computed: {
       isSourceTextValid,
       savableCards,
+      unreviewedAICandidatesCount,
       canSave,
     },
   };

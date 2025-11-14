@@ -157,7 +157,7 @@ CreateFlashcardsPage (Astro)
 
 - **Description**: Final button to persist all accepted and edited cards to the database. Disabled when no cards are ready to save.
 - **Main elements**:
-  - `<Button variant="primary">` with "Save All Cards" text
+  - `<Button variant="primary">` with "Save Cards" text
   - Loading spinner during save operation
 - **Handled events**:
   - `onClick`: Triggers two-step save process (generation log + flashcards)
@@ -217,6 +217,27 @@ CreateFlashcardsPage (Astro)
   - `onConfirm: () => void` - Confirm handler
   - `onCancel: () => void` - Cancel handler
 
+### ConfirmPartialSaveModal (React)
+
+- **Description**: Confirmation modal shown when user attempts to save flashcards while unreviewed AI candidates exist.
+- **Main elements**:
+  - Modal overlay and container
+  - Title: "Save Partially Reviewed Flashcards?"
+  - Description: Warning that unreviewed candidates will be discarded and counted as deleted
+  - Count of unreviewed cards displayed
+  - `<Button variant="outline">` Cancel button
+  - `<Button variant="destructive">` Discard & Save button
+- **Handled events**:
+  - `onConfirm`: Proceeds with save, treating unreviewed as deleted
+  - `onCancel`: Closes modal without action
+- **Validation conditions**: None
+- **Types**: `ConfirmPartialSaveModalProps`
+- **Props**:
+  - `isOpen: boolean` - Modal visibility
+  - `unreviewedCount: number` - Count of unreviewed AI candidates
+  - `onConfirm: () => void` - Confirm handler
+  - `onCancel: () => void` - Cancel handler
+
 ## 5. Types
 
 ### CandidateCardViewModel
@@ -255,6 +276,7 @@ interface CreateFlashcardsState {
     initialData: FlashcardFormData | null;
   };
   confirmRegenerateModalOpen: boolean;
+  confirmPartialSaveModalOpen: boolean;
 }
 ```
 
@@ -338,6 +360,17 @@ interface ConfirmRegenerateModalProps {
 }
 ```
 
+### ConfirmPartialSaveModalProps
+
+```typescript
+interface ConfirmPartialSaveModalProps {
+  isOpen: boolean;
+  unreviewedCount: number;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+```
+
 ## 6. State Management
 
 State is managed locally within the `CreateFlashcardsContainer` React component using the `useState` hook. A custom hook `useCreateFlashcards` encapsulates all state logic and API interactions.
@@ -373,6 +406,7 @@ State is managed locally within the `CreateFlashcardsContainer` React component 
 
 - `isSourceTextValid`: Boolean indicating if text length is valid
 - `savableCards`: Filtered array of cards with status "accepted" or "edited"
+- `unreviewedAICandidatesCount`: Count of unreviewed AI candidates
 - `canSave`: Boolean indicating if save button should be enabled
 
 ## 7. API Integration
@@ -559,15 +593,19 @@ await fetch("/api/flashcards", {
 
 ### Save Reviewed Cards (US-010)
 
-1. User reviews all candidates (accepts, edits, or deletes)
-2. "Save All Cards" button shows count of cards to save
-3. User clicks "Save All Cards" button
-4. Button shows loading spinner, all interactions are disabled
-5. System executes two-step save:
-   - If AI candidates exist: POST to `/api/generations` to log the generation event
+1. User reviews candidates (accepts, edits, or deletes some)
+2. "Save Cards" button shows count of cards to save
+3. User clicks "Save Cards" button
+4. If unreviewed AI candidates exist:
+   - Confirmation modal appears with count of unreviewed cards
+   - User can cancel or proceed with "Discard & Save"
+   - If user cancels: modal closes, state unchanged
+5. Button shows loading spinner, all interactions are disabled
+6. System executes two-step save:
+   - If AI candidates exist: POST to `/api/generations` to log the generation event (unreviewed cards counted as deleted)
    - POST to `/api/flashcards` with all accepted/edited cards
-6. On success: Success message displays, review list clears, source text clears
-7. On error: Error message displays, state remains unchanged for retry
+7. On success: Success message displays, review list clears, source text clears
+8. On error: Error message displays, state remains unchanged for retry
 
 ### Manual Card Creation (US-011)
 
@@ -631,7 +669,7 @@ await fetch("/api/flashcards", {
 **UI Effects**:
 
 - Button is disabled when no savable cards exist
-- Button shows count: "Save All Cards (3)"
+- Button shows count: "Save Cards (3)"
 - Button shows loading spinner during save operation
 - All other interactions are disabled during save
 
