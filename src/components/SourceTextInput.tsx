@@ -43,11 +43,15 @@ export function SourceTextInput({ value, onChange, onGenerate, isGenerating, dis
             aria-describedby={showError ? "source-text-error" : "source-text-counter"}
           />
           <div className="flex items-center justify-between">
-            <div
-              id={showError ? "source-text-error" : "source-text-counter"}
-              className={cn("text-sm", showError ? "text-destructive" : "text-muted-foreground")}
-            >
-              {showError ? errorMessage : `${charCount} / 10,000 characters`}
+            <div className="flex items-center gap-3">
+              <span id="source-text-counter" className="text-sm text-muted-foreground">
+                {charCount} / 10,000 characters
+              </span>
+              {showError && (
+                <span id="source-text-error" className="text-sm text-destructive">
+                  • {errorMessage}
+                </span>
+              )}
             </div>
             <Button onClick={onGenerate} disabled={!isValid || disabled} size="sm">
               {isGenerating ? (

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import type { GenerationMetadataDto } from "@/types";
 import { generateCandidates, saveGenerationLog, saveFlashcards } from "@/lib/api/flashcards";
 import { generateClientId, computeGenerationMetrics } from "@/lib/utils/flashcard-helpers";
@@ -99,6 +100,9 @@ export function useCreateFlashcards() {
 
       const manualCards = state.candidates.filter((c) => c.source === "manual");
 
+      toast.success(
+        `Generated ${candidateViewModels.length} flashcard${candidateViewModels.length !== 1 ? "s" : ""}! Review and save them below.`
+      );
       setState((prev) => ({
         ...prev,
         isGenerating: false,
@@ -231,10 +235,12 @@ export function useCreateFlashcards() {
 
       await saveFlashcards({ flashcards: flashcardsPayload });
 
+      toast.success(`Successfully saved ${savableCards.length} flashcard${savableCards.length !== 1 ? "s" : ""}!`);
       resetState();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to save cards. Please try again.";
-      setState((prev) => ({ ...prev, isSaving: false, error: message }));
+      toast.error(message);
+      setState((prev) => ({ ...prev, isSaving: false }));
     }
   };
 
