@@ -2,6 +2,7 @@ import type { APIContext } from "astro";
 import { z } from "zod";
 import type { GenerateCandidatesCommand, GenerateCandidatesResponseDto } from "../../../types";
 import { generateFlashcards } from "../../../lib/services/ai-generation.service";
+import { OpenRouterError } from "../../../lib/services/openrouter.types";
 
 export const prerender = false;
 
@@ -10,6 +11,9 @@ const generateCandidatesSchema = z.object({
     .string()
     .min(1000, "Source text must be at least 1,000 characters")
     .max(10000, "Source text must not exceed 10,000 characters"),
+  model: z.string().optional(),
+  max_cards: z.number().int().min(1).max(50).optional(),
+  temperature: z.number().min(0).max(1).optional(),
 });
 
 export const POST = async (context: APIContext) => {
@@ -26,6 +30,9 @@ export const POST = async (context: APIContext) => {
 
     const trimmedBody = {
       source_text: body.source_text?.trim() || "",
+      model: body.model,
+      max_cards: body.max_cards,
+      temperature: body.temperature,
     };
 
     const validation = generateCandidatesSchema.safeParse(trimmedBody);
@@ -41,7 +48,12 @@ export const POST = async (context: APIContext) => {
     }
 
     // 2. Call service
-    const result = await generateFlashcards(validation.data.source_text);
+    const options = {
+      model: validation.data.model,
+      maxCards: validation.data.max_cards,
+      temperature: validation.data.temperature,
+    };
+    const result = await generateFlashcards(validation.data.source_text, options);
 
     // 3. Format response
     const response: GenerateCandidatesResponseDto = {
@@ -62,6 +74,46 @@ export const POST = async (context: APIContext) => {
       );
     }
 
+    // Handle OpenRouterError with specific messages
+    if (error instanceof OpenRouterError) {
+      let userMessage: string;
+
+      switch (error.code) {
+        case "VALIDATION_ERROR":
+          userMessage = error.message;
+          break;
+        case "AUTH_ERROR":
+          userMessage = "Authentication failed. Please contact support.";
+          break;
+        case "PAYMENT_ERROR":
+          userMessage = "AI service requires credits. Please contact support.";
+          break;
+        case "RATE_LIMIT_ERROR":
+          userMessage = "Service is busy. Please try again in a few moments.";
+          break;
+        case "SERVICE_ERROR":
+          userMessage = "AI service is temporarily unavailable. Please try again later.";
+          break;
+        case "NETWORK_ERROR":
+          userMessage = "Connection error. Please check your internet connection.";
+          break;
+        case "PARSE_ERROR":
+        case "INVALID_RESPONSE":
+          userMessage = "Failed to process AI response. Please try again.";
+          break;
+        default:
+          userMessage = "Failed to generate flashcards. Please try again.";
+      }
+
+      return new Response(
+        JSON.stringify({
+          error: "Generation failed",
+          details: userMessage,
+        }),
+        { status: error.statusCode || 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const err = error as { name?: string; code?: string };
     if (err.name === "TimeoutError" || err.code === "ECONNREFUSED") {
       return new Response(
@@ -73,11 +125,12 @@ export const POST = async (context: APIContext) => {
       );
     }
 
-    console.error("Unexpected error in generate-candidates:", error);
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+
     return new Response(
       JSON.stringify({
-        error: "Internal server error",
-        details: "An unexpected error occurred",
+        error: "Generation failed",
+        details: errorMessage,
       }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );

@@ -118,6 +118,12 @@ export type UpdateFlashcardCommand = Pick<TablesUpdate<"flashcards">, "front" | 
 export interface GenerateCandidatesCommand {
   /** The source text to generate flashcards from (1,000-10,000 chars). */
   source_text: string;
+  /** Optional: AI model to use */
+  model?: string;
+  /** Optional: Maximum number of cards to generate (1-50) */
+  max_cards?: number;
+  /** Optional: Model temperature (0-1) */
+  temperature?: number;
 }
 
 /**

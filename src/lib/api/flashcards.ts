@@ -14,8 +14,9 @@ export async function generateCandidates(sourceText: string): Promise<GenerateCa
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.details || "Generation failed");
+    const error = await response.json().catch(() => ({ details: "Generation failed" }));
+    const message = error?.details || error?.error || "Generation failed";
+    throw new Error(message);
   }
 
   return response.json();
