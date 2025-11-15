@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { supabaseClient, createSupabaseServerInstance } from "../db/supabase.client.ts";
+import { createSupabaseServerInstance } from "../db/supabase.client.ts";
 
 const PUBLIC_PATHS = [
   "/",
@@ -15,9 +15,9 @@ const PUBLIC_PATHS = [
 ];
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
-  locals.supabase = supabaseClient;
-
   const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
+  locals.supabase = supabase;
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
