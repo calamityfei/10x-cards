@@ -20,6 +20,21 @@ This document outlines which user flows and features of the 10xCards project are
 - Verify redirect to `/my-flashcards`
 - Verify user is authenticated (check for logout button)
 
+**Component Dependency Tree:**
+```
+/register (Astro page)
+├── PublicLayout.astro
+│   └── ThemeToggle.tsx
+├── Card (Shadcn UI)
+└── RegisterForm.tsx
+    ├── Button (Shadcn UI)
+    ├── Input (Shadcn UI)
+    ├── Label (Shadcn UI)
+    ├── Alert (Shadcn UI)
+    └── API: POST /api/auth/register
+        └── Supabase auth.signUp()
+```
+
 **Why test:**
 Registration is the entry point for all users. Any failure here blocks access to the entire application.
 
@@ -42,6 +57,21 @@ Registration is the entry point for all users. Any failure here blocks access to
 - Verify error message displayed
 - Verify user remains on login page
 
+**Component Dependency Tree:**
+```
+/login (Astro page)
+├── PublicLayout.astro
+│   └── ThemeToggle.tsx
+├── Card (Shadcn UI)
+└── LoginForm.tsx
+    ├── Button (Shadcn UI)
+    ├── Input (Shadcn UI)
+    ├── Label (Shadcn UI)
+    ├── Alert (Shadcn UI)
+    └── API: POST /api/auth/login
+        └── Supabase auth.signInWithPassword()
+```
+
 **Why test:**
 Login is the most frequent authentication action. Must work reliably for user retention.
 
@@ -55,6 +85,16 @@ Login is the most frequent authentication action. Must work reliably for user re
 - Click logout button in navigation
 - Verify redirect to `/login`
 - Verify unauthenticated state (cannot access protected routes)
+
+**Component Dependency Tree:**
+```
+PersistentHeader.tsx (in ProtectedLayout)
+├── Button (Shadcn UI) - Logout button
+├── ThemeToggle.tsx
+├── NavigationMenu (Shadcn UI)
+└── API: POST /api/auth/logout
+    └── Supabase auth.signOut()
+```
 
 **Why test:**
 Ensures session management works correctly and protected routes are secured.
@@ -81,6 +121,25 @@ Ensures session management works correctly and protected routes are secured.
 - Login with new password
 - Verify successful authentication
 
+**Component Dependency Tree:**
+```
+/password-recovery (Astro page)
+├── PublicLayout.astro
+├── Card (Shadcn UI)
+└── PasswordRecoveryForm.tsx
+    ├── Button, Input, Label, Alert (Shadcn UI)
+    └── API: POST /api/auth/password-recovery
+        └── Supabase auth.resetPasswordForEmail()
+
+/password-reset (Astro page)
+├── PublicLayout.astro
+├── Card (Shadcn UI)
+└── PasswordResetForm.tsx
+    ├── Button, Input, Label, Alert (Shadcn UI)
+    └── API: POST /api/auth/password-reset
+        └── Supabase auth.updateUser()
+```
+
 **Why test:**
 Password recovery is critical for user account access. Broken recovery flow leads to locked-out users.
 
@@ -97,6 +156,21 @@ Password recovery is critical for user account access. Broken recovery flow lead
 - Verify success message
 - Logout and login with new password
 - Verify successful authentication
+
+**Component Dependency Tree:**
+```
+/my-account (Astro page)
+├── ProtectedLayout.astro
+│   └── PersistentHeader.tsx
+└── AccountSettings.tsx
+    ├── Card (Shadcn UI) - Account Info
+    ├── Card (Shadcn UI) - Change Password
+    │   ├── Button, Input, Label, Alert (Shadcn UI)
+    │   └── API: POST /api/auth/change-password
+    │       └── Supabase auth.updateUser()
+    └── Card (Shadcn UI) - Delete Account
+        └── DeleteAccountModal.tsx
+```
 
 **Why test:**
 Validates password update logic and ensures users can maintain account security.
@@ -115,6 +189,18 @@ Validates password update logic and ensures users can maintain account security.
 - Verify redirect to `/login`
 - Attempt to login with deleted credentials
 - Verify login fails
+
+**Component Dependency Tree:**
+```
+/my-account (Astro page)
+└── AccountSettings.tsx
+    └── DeleteAccountModal.tsx
+        ├── Dialog (Shadcn UI)
+        ├── Button, Input, Label, Alert (Shadcn UI)
+        └── API: POST /api/auth/delete-account
+            ├── Supabase: Delete user flashcards
+            └── Supabase auth.admin.deleteUser()
+```
 
 **Why test:**
 Account deletion must work correctly for GDPR compliance and user trust. Must verify data is actually deleted.
@@ -156,6 +242,35 @@ Account deletion must work correctly for GDPR compliance and user trust. Must ve
 - Click "Generate"
 - Verify message: "We couldn't find any factual items..."
 
+**Component Dependency Tree:**
+```
+/create-flashcards (Astro page)
+├── ProtectedLayout.astro
+│   └── PersistentHeader.tsx
+└── CreateFlashcardsContainer.tsx
+    ├── useCreateFlashcards hook
+    ├── ManualAddButton.tsx
+    ├── SourceTextInput.tsx
+    │   ├── Card, Button, Label, Textarea (Shadcn UI)
+    │   └── Character validation (1000-10000)
+    ├── CandidateReviewList.tsx
+    │   ├── FlashcardGrid.tsx
+    │   └── CandidateCard.tsx (for each candidate)
+    │       ├── FlashCard.tsx
+    │       └── Buttons: Accept, Edit, Delete
+    ├── SaveAllButton.tsx (floating button)
+    ├── FlashcardAddEditModal.tsx
+    │   └── Dialog, Button, Input, Textarea (Shadcn UI)
+    ├── ConfirmRegenerateModal.tsx
+    ├── ConfirmPartialSaveModal.tsx
+    └── APIs:
+        ├── POST /api/generations/generate-candidates
+        │   └── OpenRouter AI API call
+        ├── POST /api/generations (save metadata)
+        └── POST /api/flashcards (save cards)
+            └── Supabase: Insert flashcards
+```
+
 **Why test:**
 This is the core value proposition of the application. The entire AI generation → review → save flow must work seamlessly.
 
@@ -176,6 +291,23 @@ This is the core value proposition of the application. The entire AI generation 
 - Click "Save" button to persist
 - Navigate to `/my-flashcards`
 - Verify new card appears
+
+**Component Dependency Tree:**
+```
+/create-flashcards (Astro page)
+└── CreateFlashcardsContainer.tsx
+    ├── ManualAddButton.tsx
+    │   └── Button (Shadcn UI)
+    ├── FlashcardAddEditModal.tsx (mode="add")
+    │   ├── Dialog (Shadcn UI)
+    │   ├── Input (front, max 200 chars)
+    │   ├── Textarea (back, max 500 chars)
+    │   └── Button: Save, Cancel
+    ├── CandidateReviewList.tsx (shows manual card)
+    ├── SaveAllButton.tsx
+    └── API: POST /api/flashcards
+        └── Supabase: Insert flashcard
+```
 
 **Why test:**
 Manual creation is the fallback when AI fails. Must work independently of AI flow.
@@ -203,6 +335,31 @@ Manual creation is the fallback when AI fails. Must work independently of AI flo
 - Verify link to `/create-flashcards` is present
 - Click link and verify navigation
 
+**Component Dependency Tree:**
+```
+/my-flashcards (Astro page)
+├── ProtectedLayout.astro
+│   └── PersistentHeader.tsx
+└── MyFlashcardsView.tsx
+    ├── QueryClientProvider (@tanstack/react-query)
+    ├── useFlashcards hook
+    ├── SearchInput.tsx
+    ├── Select (Shadcn UI) - Sort dropdown
+    ├── FlashcardGrid.tsx
+    │   └── FlashCard.tsx (for each flashcard)
+    │       ├── Card (Shadcn UI) - Flippable
+    │       └── Buttons: Edit, Delete
+    ├── Pagination.tsx
+    ├── Empty (Shadcn UI) - Empty state
+    ├── FlashcardAddEditModal.tsx (for edit)
+    ├── ConfirmationModal.tsx (for delete)
+    └── APIs:
+        ├── GET /api/flashcards?page=1&limit=50&search=...
+        ├── PUT /api/flashcards/[id]
+        └── DELETE /api/flashcards/[id]
+            └── Supabase: Query/Update/Delete flashcards
+```
+
 **Why test:**
 This is the default landing page after login. Must handle both populated and empty states correctly.
 
@@ -218,6 +375,17 @@ This is the default landing page after login. Must handle both populated and emp
 - Verify list filters to show only matching cards (front or back)
 - Clear search
 - Verify full list is restored
+
+**Component Dependency Tree:**
+```
+/my-flashcards (Astro page)
+└── MyFlashcardsView.tsx
+    ├── SearchInput.tsx
+    │   └── Input (Shadcn UI) with search icon
+    ├── useFlashcards hook (with search param)
+    └── API: GET /api/flashcards?search=query
+        └── Supabase: .ilike() on front and back columns
+```
 
 **Why test:**
 Search is critical for users with large decks. Must search both front and back text.
@@ -237,6 +405,18 @@ Search is critical for users with large decks. Must search both front and back t
 - Click "Previous" button
 - Verify page 1 is displayed again
 
+**Component Dependency Tree:**
+```
+/my-flashcards (Astro page)
+└── MyFlashcardsView.tsx
+    ├── Pagination.tsx
+    │   ├── Button (Shadcn UI) - Previous/Next
+    │   └── ChevronLeft, ChevronRight icons
+    ├── useFlashcards hook (with page param)
+    └── API: GET /api/flashcards?page=2&limit=50
+        └── Supabase: .range() for pagination
+```
+
 **Why test:**
 Pagination prevents performance issues with large decks. Must work correctly to avoid lost cards.
 
@@ -254,6 +434,22 @@ Pagination prevents performance issues with large decks. Must work correctly to 
 - Click "Save" in modal
 - Verify modal closes
 - Verify card in list shows updated text
+
+**Component Dependency Tree:**
+```
+/my-flashcards (Astro page)
+└── MyFlashcardsView.tsx
+    ├── FlashCard.tsx
+    │   └── Button - Edit (triggers modal)
+    ├── FlashcardAddEditModal.tsx (mode="edit")
+    │   ├── Dialog (Shadcn UI)
+    │   ├── Input (front, pre-filled)
+    │   ├── Textarea (back, pre-filled)
+    │   └── Button: Save, Cancel
+    ├── useFlashcards hook (updateFlashcard mutation)
+    └── API: PUT /api/flashcards/[id]
+        └── Supabase: .update() flashcard
+```
 
 **Why test:**
 Users must be able to correct mistakes or improve cards. Edit flow must preserve card ID and update database.
@@ -274,6 +470,20 @@ Users must be able to correct mistakes or improve cards. Edit flow must preserve
 - Verify total count decreased by 1
 - Refresh page
 - Verify card is still deleted (persisted to database)
+
+**Component Dependency Tree:**
+```
+/my-flashcards (Astro page)
+└── MyFlashcardsView.tsx
+    ├── FlashCard.tsx
+    │   └── Button - Delete (triggers modal)
+    ├── ConfirmationModal.tsx
+    │   ├── Dialog (Shadcn UI)
+    │   └── Button: Confirm, Cancel
+    ├── useFlashcards hook (deleteFlashcard mutation)
+    └── API: DELETE /api/flashcards/[id]
+        └── Supabase: .delete() flashcard
+```
 
 **Why test:**
 Deletion must be permanent and reflected immediately. Confirmation prevents accidental deletions.
@@ -309,6 +519,31 @@ Deletion must be permanent and reflected immediately. Confirmation prevents acci
 - Press "2" for "Knew"
 - Verify next card loads
 
+**Component Dependency Tree:**
+```
+/study-session (Astro page)
+├── ProtectedLayout.astro
+│   └── PersistentHeader.tsx
+└── StudySession.tsx
+    ├── useStudySession hook
+    │   ├── FSRS algorithm (ts-fsrs)
+    │   └── Keyboard event listeners
+    ├── StudySessionActive.tsx
+    │   ├── Card (Shadcn UI) - Shows front/back
+    │   ├── Button - Show Answer
+    │   └── GradingButtons.tsx
+    │       └── Button: Forgot (Rating.Again), Knew (Rating.Good)
+    ├── StudySessionComplete.tsx
+    │   └── Button - Return to my flashcards
+    ├── StudySessionEmpty.tsx
+    ├── StudySessionError.tsx
+    └── APIs:
+        ├── GET /api/flashcards/due
+        │   └── Supabase: Query cards with due_date <= now
+        └── POST /api/flashcards/[id]/review
+            └── Supabase: Update SRS data (next_review, etc.)
+```
+
 **Why test:**
 Study session is the core learning feature. Spaced repetition algorithm must update card schedules correctly.
 
@@ -328,6 +563,17 @@ Study session is the core learning feature. Spaced repetition algorithm must upd
 - Login as test user with cards but none due
 - Navigate to `/study-session`
 - Verify message: "You're all caught up! No cards are due for review right now."
+
+**Component Dependency Tree:**
+```
+/study-session (Astro page)
+└── StudySession.tsx
+    ├── useStudySession hook
+    │   └── API: GET /api/flashcards/due
+    └── StudySessionEmpty.tsx
+        ├── Empty (Shadcn UI)
+        └── Button - Link to /create-flashcards
+```
 
 **Why test:**
 Empty states guide users to the correct action. Must differentiate between "no cards" and "no cards due".
@@ -350,6 +596,22 @@ Empty states guide users to the correct action. Must differentiate between "no c
 - Attempt to navigate to `/my-account`
 - Verify redirect to `/login`
 
+**Component Dependency Tree:**
+```
+Middleware (src/middleware/index.ts)
+├── Supabase auth.getUser()
+├── PUBLIC_PATHS check
+└── Redirect logic
+
+Protected Pages:
+├── /my-flashcards
+├── /create-flashcards
+├── /study-session
+└── /my-account
+    └── All use ProtectedLayout.astro
+        └── Check: if (!Astro.locals.user) redirect("/login")
+```
+
 **Why test:**
 Security validation. Protected routes must enforce authentication.
 
@@ -371,6 +633,36 @@ Security validation. Protected routes must enforce authentication.
 - Navigate to `/study-session`
 - Complete study session
 - Verify session complete message
+
+**Component Dependency Tree:**
+```
+Complete User Journey Flow:
+
+1. /register
+   └── RegisterForm.tsx → API: POST /api/auth/register
+
+2. /my-flashcards (empty state)
+   └── MyFlashcardsView.tsx → Empty component
+
+3. /create-flashcards
+   └── CreateFlashcardsContainer.tsx
+       ├── SourceTextInput.tsx → API: POST /api/generations/generate-candidates
+       ├── CandidateReviewList.tsx (Accept/Edit/Delete)
+       └── SaveAllButton.tsx → API: POST /api/flashcards
+
+4. /my-flashcards (with cards)
+   └── MyFlashcardsView.tsx
+       ├── FlashcardGrid.tsx (displays cards)
+       ├── FlashcardAddEditModal.tsx → API: PUT /api/flashcards/[id]
+       └── ConfirmationModal.tsx → API: DELETE /api/flashcards/[id]
+
+5. /study-session
+   └── StudySession.tsx
+       ├── API: GET /api/flashcards/due
+       ├── StudySessionActive.tsx (grade cards)
+       ├── API: POST /api/flashcards/[id]/review
+       └── StudySessionComplete.tsx
+```
 
 **Why test:**
 Validates the entire application flow from registration to study. Catches integration issues between features.
