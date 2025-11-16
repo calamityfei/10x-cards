@@ -147,13 +147,13 @@ export function AccountSettings({ email }: AccountSettingsProps) {
             )}
 
             {success && (
-              <Alert>
+              <Alert data-testid="change-password-success-alert">
                 <CheckCircle2 className="text-green-600" />
                 <AlertDescription className="text-green-600">Password updated successfully</AlertDescription>
               </Alert>
             )}
 
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} data-testid="change-password-submit-button">
               {isLoading ? "Updating..." : "Update Password"}
             </Button>
           </form>
@@ -171,7 +171,7 @@ export function AccountSettings({ email }: AccountSettingsProps) {
               Once you delete your account, there is no going back. All your flashcards and data will be permanently
               removed.
             </p>
-            <Button variant="destructive" onClick={() => setShowDeleteModal(true)}>
+            <Button variant="destructive" onClick={() => setShowDeleteModal(true)} data-testid="delete-account-button">
               Delete My Account
             </Button>
           </div>

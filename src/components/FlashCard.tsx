@@ -149,6 +149,7 @@ export function FlashCard({
               }}
               disabled={!showAcceptButton}
               aria-label={showAcceptButton ? "Accept card" : "Card accepted"}
+              data-testid="flashcard-accept-button"
             >
               <Check className="size-4" />
             </Button>
@@ -162,6 +163,7 @@ export function FlashCard({
               onEdit?.();
             }}
             aria-label="Edit card"
+            data-testid="flashcard-edit-button"
           >
             <Pencil className="size-4" />
           </Button>
@@ -174,6 +176,7 @@ export function FlashCard({
               onDelete?.();
             }}
             aria-label="Delete card"
+            data-testid="flashcard-delete-button"
           >
             <Trash2 className="size-4" />
           </Button>

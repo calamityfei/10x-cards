@@ -65,13 +65,13 @@ export function LoginForm() {
       </div>
 
       {error && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" data-testid="login-error-alert">
           <AlertCircle />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button type="submit" className="w-full" disabled={isLoading} data-testid="login-submit-button">
         {isLoading ? "Logging in..." : "Login"}
       </Button>
 

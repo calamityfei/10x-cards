@@ -38,7 +38,12 @@ export default function StudySessionActive({
 
       <div className="w-full flex justify-center">
         {!isAnswerRevealed ? (
-          <Button size="lg" onClick={onShowAnswer} className="flex flex-col gap-1 h-auto py-3">
+          <Button
+            size="lg"
+            onClick={onShowAnswer}
+            className="flex flex-col gap-1 h-auto py-3"
+            data-testid="show-answer-button"
+          >
             <span>Show Answer</span>
             <span className="text-xs">(Space or Enter)</span>
           </Button>

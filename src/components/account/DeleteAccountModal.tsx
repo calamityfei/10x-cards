@@ -86,10 +86,15 @@ export function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps)
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={handleClose} disabled={isLoading}>
+          <Button variant="ghost" onClick={handleClose} disabled={isLoading} data-testid="delete-account-cancel-button">
             Cancel
           </Button>
-          <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isLoading}
+            data-testid="delete-account-confirm-button"
+          >
             {isLoading ? "Deleting..." : "Delete Account"}
           </Button>
         </DialogFooter>

@@ -24,7 +24,7 @@ export function CandidateReviewList({
 }: CandidateReviewListProps) {
   if (error) {
     return (
-      <Card className="border-destructive/50 bg-destructive/5">
+      <Card className="border-destructive/50 bg-destructive/5" data-testid="candidate-error-card">
         <CardContent className="flex items-start gap-3">
           <AlertCircle className="size-5 text-destructive" />
           <div className="flex-1 space-y-2">
@@ -40,7 +40,7 @@ export function CandidateReviewList({
 
   if (visibleCandidates.length === 0) {
     return (
-      <Empty>
+      <Empty data-testid="candidate-empty-state">
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <FileText />

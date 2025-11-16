@@ -62,7 +62,7 @@ export function PasswordResetForm() {
 
   if (success) {
     return (
-      <div className="space-y-4 text-center">
+      <div className="space-y-4 text-center" data-testid="password-reset-success">
         <div className="text-sm text-muted-foreground">Password reset successful! Redirecting to login...</div>
       </div>
     );
@@ -108,7 +108,7 @@ export function PasswordResetForm() {
         </Alert>
       )}
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button type="submit" className="w-full" disabled={isLoading} data-testid="password-reset-submit-button">
         {isLoading ? "Resetting..." : "Reset Password"}
       </Button>
     </form>

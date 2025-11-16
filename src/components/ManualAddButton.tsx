@@ -8,7 +8,7 @@ interface ManualAddButtonProps {
 
 export function ManualAddButton({ onClick, disabled }: ManualAddButtonProps) {
   return (
-    <Button variant="outline" onClick={onClick} disabled={disabled}>
+    <Button variant="outline" onClick={onClick} disabled={disabled} data-testid="manual-add-button">
       <Plus />
       Add Manually
     </Button>

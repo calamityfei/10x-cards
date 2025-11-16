@@ -15,6 +15,7 @@ export default function GradingButtons({ onGrade, disabled }: GradingButtonsProp
         onClick={() => onGrade(Rating.Again)}
         disabled={disabled}
         className="flex flex-col gap-1 h-auto py-3 min-w-[120px]"
+        data-testid="grade-forgot-button"
       >
         <span>Forgot</span>
         <span className="text-xs">(1 or F)</span>
@@ -25,6 +26,7 @@ export default function GradingButtons({ onGrade, disabled }: GradingButtonsProp
         onClick={() => onGrade(Rating.Good)}
         disabled={disabled}
         className="flex flex-col gap-1 h-auto py-3 min-w-[120px]"
+        data-testid="grade-knew-button"
       >
         <span>Knew</span>
         <span className="text-xs">(2 or K)</span>

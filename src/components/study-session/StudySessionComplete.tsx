@@ -9,7 +9,7 @@ interface StudySessionCompleteProps {
 
 export default function StudySessionComplete({ stats }: StudySessionCompleteProps) {
   return (
-    <Empty>
+    <Empty data-testid="study-session-complete">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <Trophy />
@@ -21,7 +21,7 @@ export default function StudySessionComplete({ stats }: StudySessionCompleteProp
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button asChild>
+        <Button asChild data-testid="return-to-flashcards-button">
           <a href="/my-flashcards">Return to my flashcards</a>
         </Button>
       </EmptyContent>

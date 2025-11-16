@@ -190,7 +190,7 @@ function MyFlashcardsContent() {
       )}
 
       {showEmptyState && (
-        <Empty>
+        <Empty data-testid="flashcards-empty-state">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <FileText />
@@ -207,7 +207,7 @@ function MyFlashcardsContent() {
       )}
 
       {showNoResults && (
-        <div className="py-12 text-center">
+        <div className="py-12 text-center" data-testid="flashcards-no-results">
           <p className="mb-2 text-lg font-medium">No flashcards match your search.</p>
           <p className="text-sm text-muted-foreground">
             Try a different search term or{" "}

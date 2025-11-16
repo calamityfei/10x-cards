@@ -110,13 +110,13 @@ export function RegisterForm() {
       </div>
 
       {errors.general && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" data-testid="register-error-alert">
           <AlertCircle />
           <AlertDescription>{errors.general}</AlertDescription>
         </Alert>
       )}
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button type="submit" className="w-full" disabled={isLoading} data-testid="register-submit-button">
         {isLoading ? "Creating account..." : "Register"}
       </Button>
 

@@ -53,7 +53,7 @@ export function SourceTextInput({ value, onChange, onGenerate, isGenerating, dis
                 </span>
               )}
             </div>
-            <Button onClick={onGenerate} disabled={!isValid || disabled} size="sm">
+            <Button onClick={onGenerate} disabled={!isValid || disabled} size="sm" data-testid="generate-button">
               {isGenerating ? (
                 <>
                   <Spinner />

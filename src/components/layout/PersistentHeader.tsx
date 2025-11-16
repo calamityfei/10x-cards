@@ -80,7 +80,7 @@ export function PersistentHeader() {
 
         {/* Right: Logout */}
         <div className="flex flex-1 items-center justify-end">
-          <Button variant="ghost" onClick={handleLogout} disabled={isLoading}>
+          <Button variant="ghost" onClick={handleLogout} disabled={isLoading} data-testid="logout-button">
             {isLoading ? "Logging out..." : "Logout"}
           </Button>
         </div>

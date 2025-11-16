@@ -38,7 +38,7 @@ export function PasswordRecoveryForm() {
 
   if (success) {
     return (
-      <div className="space-y-4 text-center">
+      <div className="space-y-4 text-center" data-testid="password-recovery-success">
         <div className="text-sm text-muted-foreground">Check your email for password reset instructions</div>
         <a href="/login" className="text-sm text-primary hover:underline">
           Back to Login
@@ -68,7 +68,7 @@ export function PasswordRecoveryForm() {
         </Alert>
       )}
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button type="submit" className="w-full" disabled={isLoading} data-testid="password-recovery-submit-button">
         {isLoading ? "Sending..." : "Send Recovery Email"}
       </Button>
 

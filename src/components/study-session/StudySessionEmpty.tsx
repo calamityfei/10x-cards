@@ -4,7 +4,7 @@ import { BookOpen } from "lucide-react";
 
 export default function StudySessionEmpty() {
   return (
-    <Empty>
+    <Empty data-testid="study-session-empty">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <BookOpen />
