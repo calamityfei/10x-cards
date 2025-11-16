@@ -1,0 +1,27 @@
+name: Run E2E Tests
+description: Run E2E tests with Playwright
+
+runs:
+  using: composite
+  steps:
+    - name: Install Playwright browsers
+      run: npx playwright install chromium --with-deps
+      shell: bash
+
+    - name: Run E2E tests
+      run: npm run test:e2e
+      shell: bash
+
+    - name: Upload coverage
+      if: always()
+      uses: actions/upload-artifact@v5
+      with:
+        name: e2e-coverage
+        path: coverage/
+
+    - name: Upload test report
+      if: always()
+      uses: actions/upload-artifact@v5
+      with:
+        name: playwright-report
+        path: playwright-report/

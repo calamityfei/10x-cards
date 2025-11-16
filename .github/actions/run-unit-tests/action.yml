@@ -1,0 +1,22 @@
+name: Run Unit Tests
+description: Run unit tests with optional coverage
+
+inputs:
+  coverage:
+    description: Enable coverage collection
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Run unit tests
+      run: npm test ${{ inputs.coverage == 'true' && '-- --coverage' || '' }}
+      shell: bash
+
+    - name: Upload coverage
+      if: inputs.coverage == 'true'
+      uses: actions/upload-artifact@v5
+      with:
+        name: unit-coverage
+        path: coverage/
