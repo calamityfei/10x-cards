@@ -1,0 +1,126 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+  unit-test:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test -- --coverage
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v5
+        with:
+          name: unit-coverage
+          path: coverage/
+
+  e2e-test:
+    needs: lint
+    runs-on: ubuntu-latest
+    environment: integration
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
+      E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+      E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: e2e-coverage
+          path: coverage/
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+  status-comment:
+    needs: [lint, unit-test, e2e-test]
+    runs-on: ubuntu-latest
+    if: always()
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Comment PR
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const lintStatus = '${{ needs.lint.result }}';
+            const unitStatus = '${{ needs.unit-test.result }}';
+            const e2eStatus = '${{ needs.e2e-test.result }}';
+
+            const statusEmoji = (status) => status === 'success' ? '✅' : '❌';
+            const allPassed = lintStatus === 'success' && unitStatus === 'success' && e2eStatus === 'success';
+
+            const body = `## CI Status ${allPassed ? '✅' : '❌'}
+
+            | Job | Status |
+            |-----|--------|
+            | Lint | ${statusEmoji(lintStatus)} ${lintStatus} |
+            | Unit Tests | ${statusEmoji(unitStatus)} ${unitStatus} |
+            | E2E Tests | ${statusEmoji(e2eStatus)} ${e2eStatus} |
+
+            ${allPassed ? '**All checks passed!** 🎉' : '**Some checks failed.** Please review the logs.'}`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
