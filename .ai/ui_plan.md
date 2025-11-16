@@ -101,12 +101,22 @@ This section details the primary views (pages) of the application.
 
 - **View Path:** `/study-session`
 - **Access:** Protected
-- **Main Purpose:** To inform the user that the study feature is not yet available (Decision #5).
-- **Key Information:** A "Coming Soon" message.
+- **Main Purpose:** To allow users to review flashcards using spaced repetition (US-017, US-018, US-019).
+- **Key Information:** Due flashcards, current progress, grading interface.
 - **Key View Components:**
-  - `ReusableEmptyState` (or similar container): Displays a user-friendly message, e.g., "Study Sessions will launch soon. We're working hard to bring you the best-in-class review experience!"
+  - `StudySession` (React): Main component managing session state and flow.
+  - `StudySessionEmpty`: Empty state when user has 0 cards (US-021).
+  - `StudySessionCaughtUp`: Empty state when no cards are due (US-022).
+  - `StudySessionActive`: Active study interface with:
+    - Progress indicator (e.g., "Card 3 of 15")
+    - `FlashCard`: Displays card front/back (reused component)
+    - `Button`: "Show Answer" button (below card)
+    - `GradingButtons`: "Forgot" and "Knew" buttons (visible after showing answer)
+  - `StudySessionComplete`: Completion message with stats (US-019).
 - **UX/Accessibility/Security:**
-  - **UX:** This view acts as a placeholder, fulfilling the navigation requirement without implementing the deferred user stories (US-017, 018, 019, 021, 022).
+  - **UX:** Fetches due cards. FSRS calculations happen client-side using ts-fsrs library. Optimistic UI updates with server sync. Progress indicator shows current position. Session stats displayed on completion.
+  - **Accessibility:** Keyboard shortcuts (Space/Enter for Show Answer, 1/F for Forgot, 2/K for Knew). Screen reader announces card number, answer reveal, and grading. High contrast buttons with clear focus indicators. Touch targets minimum 44x44px.
+  - **Security:** All data scoped to authenticated user via RLS. SRS calculations client-side, server validates and persists.
 
 ### 2.6. My Account View
 
@@ -131,7 +141,7 @@ This section details the primary views (pages) of the application.
 
 ## 3. User Journey Map
 
-This map outlines the primary flow for a new user creating their first set of flashcards.
+This map outlines the primary flow for a new user creating their first set of flashcards and studying them.
 
 1.  **Start (Unauthenticated):** User lands on `/login`.
 2.  **Navigate to Register:** User clicks the "Register" link.
@@ -165,9 +175,35 @@ This map outlines the primary flow for a new user creating their first set of fl
     - User clicks "My Flashcards" in the persistent header.
 7.  **View `/my-flashcards`:**
     - The user now sees their 3 saved flashcards in the responsive grid.
-8.  **View `/my-account`:**
+8.  **Navigate to `/study-session`:**
+    - User clicks "Study Session" in the persistent header.
+9.  **View `/study-session` (Active Session):**
+    - **API:** `GET /flashcards/due` is called.
+    - **UI:** Progress indicator shows "Card 1 of 3".
+    - **Action (Study Card 1):**
+      - Card front is displayed.
+      - User clicks "Show Answer" button.
+      - Card flips to show back.
+      - "Forgot" and "Knew" buttons appear.
+      - User clicks "Knew".
+      - **Client:** ts-fsrs library calculates new SRS metadata (rating=3).
+      - **API:** `PATCH /flashcards/:id/review` updates card.
+      - **UI:** Progress updates to "Card 2 of 3", next card loads (front only).
+    - **Action (Study Card 2):**
+      - User clicks "Show Answer".
+      - User clicks "Forgot".
+      - **Client:** ts-fsrs calculates SRS metadata (rating=1).
+      - **API:** `PATCH /flashcards/:id/review` updates card.
+      - **UI:** Progress updates to "Card 3 of 3".
+    - **Action (Study Card 3):**
+      - User completes review.
+      - **UI:** Session complete message appears: "Session Complete! Congratulations! You reviewed 3 cards."
+      - User clicks "Return to My Flashcards" button.
+10. **View `/my-flashcards`:**
+    - User returns to flashcard list.
+11. **View `/my-account`:**
     - User navigates to their account page to manage settings.
-9.  **Logout:**
+12. **Logout:**
     - User clicks "Logout" in the header and is redirected to `/login`.
 
 ---
@@ -210,12 +246,13 @@ This header is present on all pages within the Protected Layout.
 These are reusable React components (built with Shadcn/ui) used across multiple views to ensure consistency and maintainability.
 
 - **`FlashCard`**
-  - **Purpose:** A single reusable modal for visualizing all flashcards in the system: saved and candidate ones.
+  - **Purpose:** A single reusable component for visualizing all flashcards in the system: saved, candidate, and study session cards.
   - **Features:**
     - Displays "front" text initially.
     - Flip animation (horizontal) on click to show "back" text (US-012).
-    - Includes "Edit" and "Delete" icon buttons (US-015, US-016) always. Additionally, "Accept" icon button for AI generated candidates on "Create Flashcards" page. Icons trigger specific action on click.
+    - Includes "Edit" and "Delete" icon buttons (US-015, US-016) on My Flashcards page. Additionally, "Accept" icon button for AI generated candidates on "Create Flashcards" page.
     - Has a slightly different looks in "unreviewed candidate" state to distinguish from approved ones - uses opacity or greyed-out filter.
+    - **Study Mode:** When `showAnswerButton` prop is true, disables click-to-flip and shows "Show Answer" button below card. Flip is triggered only by button click, not card click. Also, there are no other buttons ("Accept", "Edit", Delete") on the flashcard in this view.
 
 - **`FlashcardAddEditModal`**
   - **Purpose:** A single reusable modal for both creating a new manual card (US-011) and editing an existing card (US-008, US-015).
@@ -253,3 +290,42 @@ These are reusable React components (built with Shadcn/ui) used across multiple 
 - **`PersistentHeader`**
   - **Purpose:** The main navigation element for all authenticated users.
   - **Features:** Implements the layout described in section 4.3 (Left Menu, Center Logo, Right Logout). It is responsive and built with Shadcn navigation and button components.
+
+- **`StudySession`**
+  - **Purpose:** Main React component managing the study session flow and state.
+  - **Features:**
+    - Fetches due cards (`GET /flashcards/due`).
+    - Manages session state: `dueCards`, `currentCardIndex`, `showBack`, `sessionComplete`, `isLoading`.
+    - Integrates ts-fsrs library for client-side SRS calculations.
+    - Conditionally renders: `StudySessionEmpty`, `StudySessionCaughtUp`, `StudySessionActive`, or `StudySessionComplete`.
+    - Handles card grading flow: Show Answer → Grade (Forgot/Knew) → Update SRS → Next card.
+
+- **`StudySessionEmpty`**
+  - **Purpose:** Empty state when user has no flashcards (US-021).
+  - **Features:** Icon (FileText/BookOpen), heading "You don't have any flashcards to study", description, CTA button "Create Flashcards" → `/create-flashcards`.
+
+- **`StudySessionCaughtUp`**
+  - **Purpose:** Empty state when no cards are due (US-022).
+  - **Features:** Icon (CheckCircle/Coffee), heading "You're all caught up!", description "No cards are due for review right now. Great job!", optional next review time, CTA button "Return to My Flashcards" → `/my-flashcards`.
+
+- **`StudySessionActive`**
+  - **Purpose:** Active study interface for reviewing cards.
+  - **Features:**
+    - Progress indicator (e.g., "Card 3 of 15").
+    - `FlashCard` component (reused, with `showAnswerButton` prop).
+    - "Show Answer" button (below card, triggers flip).
+    - `GradingButtons` component (visible only after showing answer).
+    - Keyboard shortcuts: Space/Enter for Show Answer, 1/F for Forgot, 2/K for Knew.
+
+- **`GradingButtons`**
+  - **Purpose:** Two-button grading interface for study sessions.
+  - **Features:**
+    - "Forgot" button (destructive variant, rating=1).
+    - "Knew" button (success variant, rating=3).
+    - Disabled during API call.
+    - Only visible after "Show Answer" is clicked.
+    - Large touch targets (min 44x44px).
+
+- **`StudySessionComplete`**
+  - **Purpose:** Completion message after reviewing all due cards (US-019).
+  - **Features:** Heading "Session Complete! Congratulations!", optional session stats (e.g., "You reviewed 15 cards"), CTA button "Return to My Flashcards" → `/my-flashcards`.

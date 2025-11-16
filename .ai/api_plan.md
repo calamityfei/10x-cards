@@ -143,6 +143,72 @@
   - `401 Unauthorized`: No valid JWT provided.
   - `404 Not Found`: No flashcard found with this ID, or it does not belong to the user.
 
+#### GET /flashcards/due
+
+- **Description**: Retrieves all flashcards that are currently due for review for the authenticated user (US-017).
+- **Query Parameters**: None
+- **Response Payload (200 OK)**:
+  ```json
+  {
+    "data": [
+      {
+        "id": 1,
+        "front": "What is SQL?",
+        "back": "A query language for relational databases.",
+        "srs_state": "Review",
+        "srs_due": "2025-01-15T10:00:00Z",
+        "srs_stability": 5.2,
+        "srs_difficulty": 6.1,
+        "srs_reps": 3,
+        "srs_lapses": 1
+      }
+    ],
+    "count": 15
+  }
+  ```
+- **Error Codes**:
+  - `401 Unauthorized`: No valid JWT provided.
+- **Implementation Notes**:
+  - Query: `WHERE user_id = $1 AND srs_due <= now() ORDER BY srs_due ASC`
+  - Returns all due cards (no pagination for study session)
+
+#### PATCH /flashcards/:id/review
+
+- **Description**: Updates a flashcard's SRS metadata after a review (US-018).
+- **Request Payload**:
+  ```json
+  {
+    "rating": 1,
+    "srs_state": "Review",
+    "srs_due": "2025-01-20T10:00:00Z",
+    "srs_stability": 7.8,
+    "srs_difficulty": 5.9,
+    "srs_elapsed_days": 5,
+    "srs_scheduled_days": 5,
+    "srs_reps": 4,
+    "srs_lapses": 1
+  }
+  ```
+- **Response Payload (200 OK)**:
+  ```json
+  {
+    "id": 1,
+    "front": "What is SQL?",
+    "back": "A query language for relational databases.",
+    "srs_state": "Review",
+    "srs_due": "2025-01-20T10:00:00Z",
+    "last_reviewed": "2025-01-15T10:05:00Z"
+  }
+  ```
+- **Error Codes**:
+  - `400 Bad Request`: Invalid rating or SRS data.
+  - `401 Unauthorized`: No valid JWT provided.
+  - `404 Not Found`: Flashcard not found or doesn't belong to user.
+- **Implementation Notes**:
+  - `rating`: 1 = "Forgot", 3 = "Knew" (FSRS rating scale)
+  - All SRS fields are calculated client-side by ts-fsrs library
+  - `last_reviewed` is set to `now()` on the server
+
 ---
 
 ### Generation Resource
@@ -228,6 +294,17 @@ The API will validate all incoming request payloads _before_ sending them to the
   - `back`: `required`, `string`, `max:500`
   - `source`: (On POST) `required`, disallowed on PATCH
 
+- **PATCH /flashcards/:id/review**:
+  - `rating`: `required`, `integer`, `min:1`, `max:4`
+  - `srs_state`: `required`, `string`, `enum:['New', 'Learning', 'Review', 'Relearning']`
+  - `srs_due`: `required`, `timestamptz`
+  - `srs_stability`: `number`, `min:0`
+  - `srs_difficulty`: `number`, `min:0`
+  - `srs_elapsed_days`: `integer`, `min:0`
+  - `srs_scheduled_days`: `integer`, `min:0`
+  - `srs_reps`: `integer`, `min:0`
+  - `srs_lapses`: `integer`, `min:0`
+
 - **POST /generations/generate-candidates**:
   - `source_text`: `required`, `string`, `min:1000`, `max:10000`
 
@@ -258,3 +335,7 @@ The API will validate all incoming request payloads _before_ sending them to the
 - **Search (US-013)**: Implemented in the `GET /flashcards` endpoint. The `search` query parameter is translated into a `WHERE (front ILIKE $1 OR back ILIKE $1)` clause, with `$1` being `'%query%'`. The performance trade-off (no index) is accepted for the MVP.
 
 - **Account Deletion (US-005)**: Implemented in the `DELETE /user/me` endpoint. This is a custom API route (e.g., a Supabase Edge Function) that securely gets the user ID from the auth token and calls the Supabase admin function to delete the user. The `ON DELETE CASCADE` constraint handles all data cleanup.
+
+- **Study Session (US-017, US-018)**: Implemented across two endpoints:
+  - `GET /flashcards/due`: Fetches all cards where `srs_due <= now()` for the authenticated user, ordered by due date.
+  - `PATCH /flashcards/:id/review`: Updates SRS metadata after user grades a card. The FSRS algorithm calculations are performed client-side using the ts-fsrs library, and the resulting state is persisted to the database. The `last_reviewed` timestamp is set server-side to `now()`.
