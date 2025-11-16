@@ -29,6 +29,7 @@ export class MyFlashcardsPage {
   }
 
   async getFlashcardCount() {
+    await this.page.waitForSelector('[data-testid="flashcard-edit-button"]', { timeout: 15000 }).catch(() => undefined);
     return this.page.locator('[data-testid="flashcard-edit-button"]').count();
   }
 

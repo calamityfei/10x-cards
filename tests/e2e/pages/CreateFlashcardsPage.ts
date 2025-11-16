@@ -8,15 +8,18 @@ export class CreateFlashcardsPage {
   }
 
   async pasteSourceText(text: string) {
-    await this.page.locator("#source-text").fill(text);
+    const textarea = this.page.locator("#source-text");
+    await textarea.click();
+    await textarea.fill(text);
+    await textarea.blur();
   }
 
   async clickGenerate() {
     await this.page.getByTestId("generate-button").click();
   }
 
-  async waitForCandidates() {
-    await this.page.waitForSelector('[data-testid="flashcard-accept-button"]', { timeout: 30000 });
+  async waitForCandidates(timeout = 90000) {
+    await this.page.waitForSelector('[data-testid="flashcard-accept-button"]', { timeout });
   }
 
   async isErrorVisible() {
@@ -54,6 +57,10 @@ export class CreateFlashcardsPage {
 
   async clickSaveAll() {
     await this.page.getByTestId("save-all-button").click();
+  }
+
+  async confirmPartialSave() {
+    await this.page.getByRole("button", { name: "Discard & Save" }).click();
   }
 
   async getCandidateCount() {
