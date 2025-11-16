@@ -60,6 +60,22 @@ This project uses a modern, decoupled architecture designed for performance, dev
 - **[Playwright](https://playwright.dev/):** End-to-end testing framework for simulating complete user flows.
 - **[Mock Service Worker (MSW)](https://mswjs.io/):** API mocking for component and E2E tests.
 
+#### Unit Testing Quick Guide
+
+```bash
+# Run all unit tests
+npm test
+
+# Run only unit tests (exclude e2e)
+npm test -- tests/unit/
+
+# Run with watch mode (auto-rerun on file changes)
+npm test -- tests/unit/ --watch
+
+# Run with UI (visual test runner)
+npm run test:ui
+```
+
 ### DevOps
 
 - **[GitHub Actions](https://github.com/features/actions):** Used for Continuous Integration and Continuous Deployment (CI/CD) pipelines.
