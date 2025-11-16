@@ -1,0 +1,193 @@
+# Unit Test Plan for 10xCards
+
+## Overview
+
+This document outlines which elements of the 10xCards project are worth testing with unit tests and the rationale behind these decisions. The plan prioritizes high-ROI testing targets that provide maximum confidence with minimal maintenance overhead.
+
+---
+
+## High-Priority Unit Testing Targets
+
+### 1. Pure Utility Functions (`src/lib/utils/`)
+
+#### `flashcard-helpers.ts`
+
+**Functions to test:**
+- `generateClientId()` - Ensures UUID generation works consistently
+- `computeGenerationMetrics()` - Complex business logic with multiple conditions; critical for analytics accuracy
+- `validateFlashcardForm()` - Input validation logic that prevents invalid data
+
+**Why test:**
+These are pure functions with no side effects, making them ideal for unit testing. They contain business logic that's isolated from framework/database concerns.
+
+---
+
+#### `fsrs.ts`
+
+**Functions to test:**
+- `convertToFSRSCard()` - Data transformation with edge cases (null/undefined SRS data)
+- `buildReviewCommand()` - Critical for spaced repetition accuracy; wrong calculations break the learning algorithm
+- State mapping functions (`mapStateToFSRS`, `mapStateFromFSRS`) - Enum conversions that must be bidirectional
+
+**Why test:**
+The spaced repetition algorithm is the core value proposition of the application. Any bugs in FSRS calculations directly impact the learning experience and user trust.
+
+---
+
+### 2. Validation Schemas (`src/lib/validation/`)
+
+#### `flashcard.schemas.ts`
+
+**Schemas to test:**
+- All Zod schemas (query params, create/update payloads, review data)
+- Edge cases: min/max lengths, required fields, enum values, coercion
+
+**Test scenarios:**
+- Valid inputs pass validation
+- Invalid inputs are rejected with appropriate error messages
+- Boundary conditions (exactly at min/max limits)
+- Type coercion works correctly (e.g., string to number)
+
+---
+
+#### `auth.schemas.ts`
+
+**Schemas to test:**
+- Email format validation
+- Password length requirements
+- Required field validation
+
+**Why test:**
+Validation is your first line of defense against bad data. Testing schemas ensures they catch invalid inputs before they reach your database or business logic.
+
+---
+
+### 3. Service Layer Business Logic (`src/lib/services/`)
+
+#### `flashcard.service.ts`
+
+**Functions to test (with mocked Supabase client):**
+- Query building logic in `getFlashcards()` (pagination, search, sorting)
+- Data transformation in `getDueFlashcards()` (filtering user_id)
+- Error handling patterns (PGRST116 for not found)
+
+**Why test:**
+While these interact with Supabase, you can mock the database client to test:
+- Correct query construction
+- Proper error handling
+- Data transformation logic
+- Edge cases (empty results, null values)
+
+---
+
+### 4. API Error Handling (`src/lib/utils/api-errors.ts`)
+
+**Functions to test:**
+- `createErrorResponse()` - Standardized error format
+- `handleApiError()` - Zod error vs generic error handling
+
+**Why test:**
+Consistent error responses are critical for frontend error handling. These are pure functions that are easy to test and provide high confidence in API reliability.
+
+---
+
+## Medium-Priority (Consider for MVP+)
+
+### 5. React Hooks (`src/hooks/`)
+
+**Hooks to test:**
+- `useCreateFlashcards` - State management for flashcard generation flow
+- `useFlashcards` - Data fetching and caching logic
+- `useStudySession` - Study session state and FSRS integration
+
+**Why test:**
+Hooks contain complex state logic but require React Testing Library setup. Consider testing these after core utilities are covered.
+
+---
+
+### 6. React Components (Selected)
+
+**Components to test:**
+- `Pagination.tsx` - Pure presentation logic with calculations
+- `GradingButtons.tsx` - User interaction logic for study sessions
+- Form validation in auth/flashcard forms
+
+**Why test:**
+Components with complex logic or critical user flows benefit from unit tests, but prioritize integration/E2E tests for UI validation.
+
+---
+
+## Low-Priority (Skip for MVP)
+
+**Elements not recommended for unit testing:**
+- Shadcn UI components (`src/components/ui/`) - Already tested by the library
+- Astro components - Better tested with E2E tests
+- API endpoints - Better tested with integration tests
+- Middleware - Better tested with integration tests
+
+---
+
+## Why This Testing Strategy?
+
+1. **ROI Focus:** Pure functions and business logic give the highest return on testing investment
+2. **Confidence:** FSRS calculations and validation schemas are critical - bugs here break core functionality
+3. **Regression Prevention:** Utility functions are likely to be refactored; tests catch breaking changes
+4. **Fast Feedback:** Unit tests run in milliseconds, enabling TDD workflow
+5. **Documentation:** Tests serve as executable documentation for complex logic
+
+---
+
+## Recommended Test Structure
+
+```
+tests/unit/
+├── lib/
+│   ├── utils/
+│   │   ├── flashcard-helpers.test.ts
+│   │   ├── fsrs.test.ts
+│   │   └── api-errors.test.ts
+│   ├── validation/
+│   │   ├── flashcard.schemas.test.ts
+│   │   └── auth.schemas.test.ts
+│   └── services/
+│       └── flashcard.service.test.ts (with mocked Supabase)
+```
+
+---
+
+## Implementation Priority
+
+**Phase 1 (Critical):**
+1. `fsrs.test.ts` - Most critical for spaced repetition feature
+2. `flashcard-helpers.test.ts` - Core business logic
+3. `flashcard.schemas.test.ts` - Data validation
+
+**Phase 2 (Important):**
+4. `auth.schemas.test.ts` - Security validation
+5. `api-errors.test.ts` - Error handling consistency
+
+**Phase 3 (Nice to have):**
+6. `flashcard.service.test.ts` - Service layer with mocks
+7. Selected React hooks and components
+
+---
+
+## Testing Guidelines
+
+- Use Vitest with jsdom environment (already configured)
+- Mock external dependencies (Supabase, OpenRouter API)
+- Follow AAA pattern (Arrange, Act, Assert)
+- Test edge cases and error conditions
+- Aim for meaningful coverage, not 100% coverage
+- Keep tests fast and isolated
+- Use descriptive test names that explain the scenario
+
+---
+
+## Success Metrics
+
+- All high-priority utilities have >90% coverage
+- All validation schemas have comprehensive test cases
+- Tests run in <5 seconds
+- Zero flaky tests
+- Tests catch regressions before production
