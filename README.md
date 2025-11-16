@@ -53,6 +53,13 @@ This project uses a modern, decoupled architecture designed for performance, dev
 
 - **[Openrouter.ai](https://openrouter.ai/):** A single API endpoint to access a wide variety of AI models (from OpenAI, Anthropic, Google, etc.). This allows us to find the most cost-effective model that meets the project's quality goals.
 
+### Testing
+
+- **[Vitest](https://vitest.dev/):** Test framework for unit, component, and integration tests.
+- **[React Testing Library](https://testing-library.com/docs/react-testing-library/intro/):** For testing React components in isolation.
+- **[Playwright](https://playwright.dev/):** End-to-end testing framework for simulating complete user flows.
+- **[Mock Service Worker (MSW)](https://mswjs.io/):** API mocking for component and E2E tests.
+
 ### DevOps
 
 - **[GitHub Actions](https://github.com/features/actions):** Used for Continuous Integration and Continuous Deployment (CI/CD) pipelines.

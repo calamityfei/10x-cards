@@ -22,6 +22,13 @@
   - Access to a wide range of models (**OpenAI**, **Anthropic**, **Google**, and many others), which will allow us to find a solution ensuring high efficiency and low costs.
   - Allows for setting financial limits on API keys.
 
+### Testing
+
+- **Vitest**: Test framework for unit, component, and integration tests.
+- **React Testing Library**: For testing React components in isolation.
+- **Playwright**: End-to-end testing framework for simulating complete user flows.
+- **Mock Service Worker (MSW)**: API mocking for component and E2E tests.
+
 ### CI/CD and Hosting
 
 - **Github Actions**: For creating CI/CD pipelines.
