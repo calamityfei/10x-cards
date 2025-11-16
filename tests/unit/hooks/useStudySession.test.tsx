@@ -16,7 +16,7 @@ describe("useStudySession", () => {
     vi.restoreAllMocks();
   });
 
-  it("should start in loading state", () => {
+  it("should start in loading state", async () => {
     vi.mocked(global.fetch).mockResolvedValue({
       ok: true,
       json: async () => ({ data: [], count: 0 }),
@@ -25,6 +25,8 @@ describe("useStudySession", () => {
     const { result } = renderHook(() => useStudySession());
 
     expect(result.current.state.status).toBe("loading");
+
+    await waitFor(() => expect(result.current.state.status).not.toBe("loading"));
   });
 
   it("should transition to empty state when no cards", async () => {
