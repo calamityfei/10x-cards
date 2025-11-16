@@ -10,8 +10,10 @@ interface FlashCardProps {
   showAcceptButton?: boolean;
   hideAcceptButton?: boolean;
   onAccept?: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  showAnswerButton?: boolean;
+  isFlipped?: boolean;
 }
 
 export function FlashCard({
@@ -23,8 +25,11 @@ export function FlashCard({
   onAccept,
   onEdit,
   onDelete,
+  showAnswerButton = false,
+  isFlipped: controlledIsFlipped,
 }: FlashCardProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [internalIsFlipped, setInternalIsFlipped] = useState(false);
+  const isFlipped = controlledIsFlipped ?? internalIsFlipped;
   const frontRef = useRef<HTMLParagraphElement>(null);
   const backRef = useRef<HTMLParagraphElement>(null);
   const [frontFontSize, setFrontFontSize] = useState(16);
@@ -70,7 +75,11 @@ export function FlashCard({
       >
         {/* Front */}
         <button
-          onClick={() => setIsFlipped(true)}
+          onClick={() => {
+            if (!showAnswerButton) {
+              setInternalIsFlipped(true);
+            }
+          }}
           className={cn(
             "absolute inset-0 flex items-center justify-center rounded-lg border-2 px-6 py-10 text-center shadow-md transition-opacity hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             isUnreviewed
@@ -95,7 +104,11 @@ export function FlashCard({
 
         {/* Back */}
         <button
-          onClick={() => setIsFlipped(false)}
+          onClick={() => {
+            if (!showAnswerButton) {
+              setInternalIsFlipped(false);
+            }
+          }}
           className={cn(
             "absolute inset-0 flex items-center justify-center rounded-lg border-2 px-6 py-10 text-center shadow-md transition-opacity hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             isUnreviewed
@@ -120,50 +133,52 @@ export function FlashCard({
       </div>
 
       {/* Action buttons */}
-      <div className="absolute bottom-2 left-2 z-10 flex gap-1">
-        {!hideAcceptButton && (
+      {!showAnswerButton && (
+        <div className="absolute bottom-2 left-2 z-10 flex gap-1">
+          {!hideAcceptButton && (
+            <Button
+              variant="outline"
+              size="icon"
+              className={cn(
+                "size-9 rounded-full shadow-sm",
+                !showAcceptButton && "bg-green-500 text-white hover:bg-green-500"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (showAcceptButton && onAccept) onAccept();
+              }}
+              disabled={!showAcceptButton}
+              aria-label={showAcceptButton ? "Accept card" : "Card accepted"}
+            >
+              <Check className="size-4" />
+            </Button>
+          )}
           <Button
             variant="outline"
             size="icon"
-            className={cn(
-              "size-9 rounded-full shadow-sm",
-              !showAcceptButton && "bg-green-500 text-white hover:bg-green-500"
-            )}
+            className="size-9 rounded-full shadow-sm"
             onClick={(e) => {
               e.stopPropagation();
-              if (showAcceptButton && onAccept) onAccept();
+              onEdit?.();
             }}
-            disabled={!showAcceptButton}
-            aria-label={showAcceptButton ? "Accept card" : "Card accepted"}
+            aria-label="Edit card"
           >
-            <Check className="size-4" />
+            <Pencil className="size-4" />
           </Button>
-        )}
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-9 rounded-full shadow-sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
-          aria-label="Edit card"
-        >
-          <Pencil className="size-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-9 rounded-full shadow-sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          aria-label="Delete card"
-        >
-          <Trash2 className="size-4" />
-        </Button>
-      </div>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-9 rounded-full shadow-sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.();
+            }}
+            aria-label="Delete card"
+          >
+            <Trash2 className="size-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

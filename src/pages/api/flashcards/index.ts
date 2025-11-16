@@ -19,7 +19,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const validatedQuery = getFlashcardsQuerySchema.parse(queryParams);
 
-    const result = await getFlashcards(locals.supabase, locals.user.id, validatedQuery);
+    const result = await getFlashcards(locals.supabase, validatedQuery);
 
     return new Response(JSON.stringify(result), {
       status: 200,

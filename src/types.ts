@@ -192,6 +192,63 @@ export type CreateGenerationResponseDto = Omit<GenerationRow, "user_id">;
 
 // --- View Models ---
 
+// --- Study Session Resource ---
+
+/**
+ * Represents the valid SRS states for a flashcard.
+ */
+export type SrsState = "New" | "Learning" | "Review" | "Relearning";
+
+/**
+ * **[DTO]**
+ * A flashcard with SRS metadata for study sessions.
+ */
+export type FlashcardWithSrsDto = FlashcardDto & {
+  srs_state: string | null;
+  srs_due: string | null;
+  srs_stability: number | null;
+  srs_difficulty: number | null;
+  srs_reps: number | null;
+  srs_lapses: number | null;
+  last_reviewed: string | null;
+};
+
+/**
+ * **[DTO]**
+ * The response payload for `GET /flashcards/due`.
+ */
+export interface GetDueFlashcardsResponseDto {
+  data: FlashcardWithSrsDto[];
+  count: number;
+}
+
+/**
+ * **[Command Model]**
+ * The request payload for `PATCH /flashcards/:id/review`.
+ */
+export interface ReviewFlashcardCommand {
+  rating: number;
+  srs_state: string;
+  srs_due: string;
+  srs_stability: number;
+  srs_difficulty: number;
+  srs_elapsed_days: number;
+  srs_scheduled_days: number;
+  srs_reps: number;
+  srs_lapses: number;
+}
+
+/**
+ * **[DTO]**
+ * The response payload for `PATCH /flashcards/:id/review`.
+ */
+export type ReviewFlashcardResponseDto = Pick<
+  FlashcardWithSrsDto,
+  "id" | "front" | "back" | "srs_state" | "srs_due" | "last_reviewed"
+>;
+
+// --- View Models ---
+
 /**
  * View model for modal states.
  * Tracks which modal is open and associated data.
@@ -205,4 +262,38 @@ export interface ModalState {
     isOpen: boolean;
     flashcard: FlashcardDto | null;
   };
+}
+
+/**
+ * Represents the current state of the study session.
+ */
+export type StudySessionStatus =
+  | "loading" // Initial fetch in progress
+  | "empty" // User has 0 total cards
+  | "caught-up" // User has cards but 0 are due
+  | "active" // Study session in progress
+  | "complete" // All due cards reviewed
+  | "error"; // API error occurred
+
+/**
+ * Statistics tracked during a study session.
+ */
+export interface SessionStats {
+  totalReviewed: number;
+  forgotCount: number;
+  knewCount: number;
+  startTime: Date;
+  endTime: Date | null;
+}
+
+/**
+ * View model for the entire study session state.
+ */
+export interface StudySessionState {
+  status: StudySessionStatus;
+  cards: FlashcardWithSrsDto[];
+  currentIndex: number;
+  isAnswerRevealed: boolean;
+  stats: SessionStats;
+  error: string | null;
 }

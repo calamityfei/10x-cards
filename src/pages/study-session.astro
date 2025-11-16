@@ -1,13 +1,6 @@
 ---
-/**
- * Study Session Coming Soon Page
- *
- * This is a placeholder view that informs users the study session feature
- * is not yet available. This page will be replaced when user stories
- * US-017, US-018, US-019, US-021, and US-022 are implemented.
- */
 import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
-import StudySessionComingSoon from "@/components/StudySessionComingSoon";
+import StudySessionComponent from "@/components/StudySession";
 
 export const prerender = false;
 
@@ -16,6 +9,6 @@ if (!Astro.locals.user) {
 }
 ---
 
-<ProtectedLayout title="Study Session - Coming Soon">
-  <StudySessionComingSoon client:load />
+<ProtectedLayout title="Study Session">
+  <StudySessionComponent client:load />
 </ProtectedLayout>

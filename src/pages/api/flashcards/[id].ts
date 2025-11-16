@@ -16,7 +16,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
     const id = flashcardIdSchema.parse(params.id);
 
-    const flashcard = await getFlashcardById(locals.supabase, locals.user.id, id);
+    const flashcard = await getFlashcardById(locals.supabase, id);
 
     if (!flashcard) {
       return new Response(JSON.stringify({ error: "Flashcard not found" }), {
@@ -58,7 +58,7 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     const body = await request.json();
     const validatedBody = updateFlashcardSchema.parse(body);
 
-    const flashcard = await updateFlashcard(locals.supabase, locals.user.id, id, validatedBody);
+    const flashcard = await updateFlashcard(locals.supabase, id, validatedBody);
 
     if (!flashcard) {
       return new Response(JSON.stringify({ error: "Flashcard not found" }), {
@@ -98,7 +98,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
 
     const id = flashcardIdSchema.parse(params.id);
 
-    const deleted = await deleteFlashcard(locals.supabase, locals.user.id, id);
+    const deleted = await deleteFlashcard(locals.supabase, id);
 
     if (!deleted) {
       return new Response(JSON.stringify({ error: "Flashcard not found" }), {

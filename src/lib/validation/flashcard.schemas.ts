@@ -44,3 +44,18 @@ export const updateFlashcardSchema = z
  * Validation schema for flashcard ID path parameter
  */
 export const flashcardIdSchema = z.coerce.number().int().positive();
+
+/**
+ * Validation schema for PATCH /flashcards/:id/review request body
+ */
+export const reviewFlashcardSchema = z.object({
+  rating: z.number().int().min(1).max(4),
+  srs_state: z.enum(["New", "Learning", "Review", "Relearning"]),
+  srs_due: z.string().datetime(),
+  srs_stability: z.number().positive(),
+  srs_difficulty: z.number().positive(),
+  srs_elapsed_days: z.number().int().nonnegative(),
+  srs_scheduled_days: z.number().int().nonnegative(),
+  srs_reps: z.number().int().nonnegative(),
+  srs_lapses: z.number().int().nonnegative(),
+});
