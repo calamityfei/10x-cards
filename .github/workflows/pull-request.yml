@@ -9,6 +9,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v5
+
       - uses: ./.github/actions/setup-node
 
       - name: Run linter
@@ -18,6 +20,8 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v5
+
       - uses: ./.github/actions/setup-node
 
       - uses: ./.github/actions/run-unit-tests
@@ -36,6 +40,8 @@ jobs:
       E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
       E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
     steps:
+      - uses: actions/checkout@v5
+
       - uses: ./.github/actions/setup-node
 
       - uses: ./.github/actions/run-e2e-tests
