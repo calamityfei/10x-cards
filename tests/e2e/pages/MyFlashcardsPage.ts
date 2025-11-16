@@ -12,7 +12,7 @@ export class MyFlashcardsPage {
   }
 
   async search(query: string) {
-    await this.page.fill("#search", query);
+    await this.page.locator("#search").fill(query);
   }
 
   async clearSearch() {
@@ -51,8 +51,8 @@ export class MyFlashcardsPage {
   }
 
   async fillEditModal(front: string, back: string) {
-    await this.page.fill("#front", front);
-    await this.page.fill("#back", back);
+    await this.page.locator("#front").fill(front);
+    await this.page.locator("#back").fill(back);
     await this.page.getByRole("button", { name: "Save" }).click();
   }
 

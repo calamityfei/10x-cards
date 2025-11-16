@@ -8,10 +8,11 @@ export class AccountSettingsPage {
   }
 
   async changePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
-    await this.page.fill("#currentPassword", currentPassword);
-    await this.page.fill("#newPassword", newPassword);
-    await this.page.fill("#confirmPassword", confirmPassword);
+    await this.page.locator("#currentPassword").fill(currentPassword);
+    await this.page.locator("#newPassword").fill(newPassword);
+    await this.page.locator("#confirmPassword").fill(confirmPassword);
     await this.page.getByTestId("change-password-submit-button").click();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async isPasswordChangeSuccessVisible() {
@@ -23,8 +24,9 @@ export class AccountSettingsPage {
   }
 
   async confirmDeleteAccount(password: string) {
-    await this.page.fill("#password", password);
+    await this.page.locator("#password").fill(password);
     await this.page.getByTestId("delete-account-confirm-button").click();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async cancelDeleteAccount() {

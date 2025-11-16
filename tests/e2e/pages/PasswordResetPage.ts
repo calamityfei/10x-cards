@@ -9,9 +9,10 @@ export class PasswordResetPage {
   }
 
   async resetPassword(newPassword: string, confirmPassword: string) {
-    await this.page.fill("#password", newPassword);
-    await this.page.fill("#confirmPassword", confirmPassword);
+    await this.page.locator("#password").fill(newPassword);
+    await this.page.locator("#confirmPassword").fill(confirmPassword);
     await this.page.getByTestId("password-reset-submit-button").click();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async isSuccessMessageVisible() {

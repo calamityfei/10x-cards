@@ -8,7 +8,7 @@ export class CreateFlashcardsPage {
   }
 
   async pasteSourceText(text: string) {
-    await this.page.fill("#source-text", text);
+    await this.page.locator("#source-text").fill(text);
   }
 
   async clickGenerate() {
@@ -47,8 +47,8 @@ export class CreateFlashcardsPage {
   }
 
   async fillCardModal(front: string, back: string) {
-    await this.page.fill("#front", front);
-    await this.page.fill("#back", back);
+    await this.page.locator("#front").fill(front);
+    await this.page.locator("#back").fill(back);
     await this.page.getByRole("button", { name: "Save" }).click();
   }
 

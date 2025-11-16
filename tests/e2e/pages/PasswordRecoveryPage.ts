@@ -8,8 +8,9 @@ export class PasswordRecoveryPage {
   }
 
   async submitRecoveryRequest(email: string) {
-    await this.page.fill("#email", email);
+    await this.page.locator("#email").fill(email);
     await this.page.getByTestId("password-recovery-submit-button").click();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async isSuccessMessageVisible() {

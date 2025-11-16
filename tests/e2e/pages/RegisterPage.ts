@@ -8,10 +8,11 @@ export class RegisterPage {
   }
 
   async register(email: string, password: string, confirmPassword: string) {
-    await this.page.fill("#email", email);
-    await this.page.fill("#password", password);
-    await this.page.fill("#confirmPassword", confirmPassword);
+    await this.page.locator("#email").fill(email);
+    await this.page.locator("#password").fill(password);
+    await this.page.locator("#confirmPassword").fill(confirmPassword);
     await this.page.getByTestId("register-submit-button").click();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async getErrorMessage() {

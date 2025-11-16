@@ -8,9 +8,10 @@ export class LoginPage {
   }
 
   async login(email: string, password: string) {
-    await this.page.fill("#email", email);
-    await this.page.fill("#password", password);
+    await this.page.locator("#email").fill(email);
+    await this.page.locator("#password").fill(password);
     await this.page.getByTestId("login-submit-button").click();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async getErrorMessage() {
