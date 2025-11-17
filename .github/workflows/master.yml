@@ -53,5 +53,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=10x-cards --compatibility-flag=nodejs_compat
+          command: pages deploy dist --project-name=10x-cards
           wranglerVersion: "4.47.0"
