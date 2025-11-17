@@ -1,4 +1,3 @@
-import { createHash } from "crypto";
 import type { FlashcardCandidateDto, GenerationMetadataDto } from "../../types";
 import type { GenerationOptions, OpenRouterResponse, ResponseFormat } from "./openrouter.types";
 import { OpenRouterError } from "./openrouter.types";
@@ -105,8 +104,12 @@ Remember:
     };
   }
 
-  private calculateMetadata(sourceText: string, model: string, duration: number): GenerationMetadataDto {
-    const sourceTextHash = createHash("sha256").update(sourceText).digest("hex");
+  private async calculateMetadata(sourceText: string, model: string, duration: number): Promise<GenerationMetadataDto> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(sourceText);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const sourceTextHash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 
     return {
       model_used: model,
@@ -292,7 +295,7 @@ Remember:
 
     // Calculate metadata
     const duration = Date.now() - startTime;
-    const metadata = this.calculateMetadata(sourceText, model, duration);
+    const metadata = await this.calculateMetadata(sourceText, model, duration);
 
     // Parse and validate
     const candidates = this.parseAndValidateResponse(apiResponse);
@@ -304,22 +307,16 @@ Remember:
   }
 }
 
-// Singleton instance - only initialize in Astro context
-let _openRouterServiceInstance: OpenRouterService | null = null;
-
 /**
- * Gets the singleton OpenRouterService instance.
- * Initializes the service on first call using OPENROUTER_API_KEY from environment.
- * @returns The OpenRouterService singleton instance
+ * Gets the OpenRouterService instance.
+ * @param env - Optional runtime environment variables (for Cloudflare Workers)
+ * @returns The OpenRouterService instance
  * @throws {Error} If OPENROUTER_API_KEY environment variable is not set
  */
-export function getOpenRouterService(): OpenRouterService {
-  if (!_openRouterServiceInstance) {
-    const apiKey = import.meta.env?.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      throw new Error("OPENROUTER_API_KEY environment variable is not set");
-    }
-    _openRouterServiceInstance = new OpenRouterService(apiKey);
+export function getOpenRouterService(env?: { OPENROUTER_API_KEY?: string }): OpenRouterService {
+  const apiKey = env?.OPENROUTER_API_KEY ?? import.meta.env?.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error("OPENROUTER_API_KEY environment variable is not set");
   }
-  return _openRouterServiceInstance;
+  return new OpenRouterService(apiKey);
 }

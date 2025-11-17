@@ -53,7 +53,7 @@ export const POST = async (context: APIContext) => {
       maxCards: validation.data.max_cards,
       temperature: validation.data.temperature,
     };
-    const result = await generateFlashcards(validation.data.source_text, options);
+    const result = await generateFlashcards(validation.data.source_text, options, context.locals.runtime?.env);
 
     // 3. Format response
     const response: GenerateCandidatesResponseDto = {
