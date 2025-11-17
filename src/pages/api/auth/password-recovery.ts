@@ -5,12 +5,12 @@ import { passwordRecoverySchema } from "../../../lib/validation/auth.schemas";
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, cookies, url }) => {
+export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
   try {
     const body = await request.json();
     const { email } = passwordRecoverySchema.parse(body);
 
-    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
+    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers }, locals.runtime?.env);
     const redirectTo = `${url.origin}/password-reset`;
 
     await supabase.auth.resetPasswordForEmail(email, { redirectTo });

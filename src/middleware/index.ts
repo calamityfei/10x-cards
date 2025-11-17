@@ -15,7 +15,7 @@ const PUBLIC_PATHS = [
 ];
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
-  const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
+  const supabase = createSupabaseServerInstance({ cookies, headers: request.headers }, locals.runtime?.env);
   locals.supabase = supabase;
 
   const {

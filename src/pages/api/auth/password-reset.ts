@@ -8,12 +8,12 @@ const passwordResetSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies, locals }) => {
   try {
     const body = await request.json();
     const { password } = passwordResetSchema.parse(body);
 
-    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
+    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers }, locals.runtime?.env);
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {

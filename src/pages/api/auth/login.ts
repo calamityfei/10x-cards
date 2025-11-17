@@ -5,12 +5,12 @@ import { loginSchema } from "../../../lib/validation/auth.schemas";
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies, locals }) => {
   try {
     const body = await request.json();
     const { email, password } = loginSchema.parse(body);
 
-    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
+    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers }, locals.runtime?.env);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {

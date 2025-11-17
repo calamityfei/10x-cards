@@ -17,7 +17,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     const body = await request.json();
     const { currentPassword, newPassword } = changePasswordSchema.parse(body);
 
-    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
+    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers }, locals.runtime?.env);
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: locals.user.email,
