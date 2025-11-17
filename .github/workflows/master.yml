@@ -28,6 +28,9 @@ jobs:
   deploy:
     needs: [lint, unit-test]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
     environment: production
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
